@@ -1,4 +1,4 @@
-# PowerShell script to fetch Supabase user profile from 'profiles' table
+# PowerShell script to fetch Supabase user profile from 'profiles' table, automating login and JWT retrieval
 $envPath = "..\..\backend\.env"
 
 # Load .env and extract Supabase credentials
@@ -10,11 +10,23 @@ Get-Content $envPath | ForEach-Object {
 Write-Host "Supabase URL: $supabaseUrl"
 Write-Host "Anon Key: $anonKey"
 
-# Paste your JWT access token from login-user.ps1 output here
-$jwt = Read-Host "Paste your JWT access token from login-user.ps1 output"
+# User credentials for login (replace with test user as needed)
+$email = "ifeanyiobasi65@gmail.com"
+$password = "ABCD1234"
 
-# Your user id (from profile or login output)
-$userId = Read-Host "Paste your user id (uuid) from login-user.ps1 output"
+# Login to get JWT access token and user id
+$loginHeaders = @{
+  "apikey"        = $anonKey
+  "Authorization" = "Bearer $anonKey"
+  "Content-Type"  = "application/json"
+}
+$loginBody = @{ email = $email; password = $password } | ConvertTo-Json
+$loginResponse = Invoke-RestMethod -Uri "$supabaseUrl/auth/v1/token?grant_type=password" -Method Post -Headers $loginHeaders -Body $loginBody
+$jwt = $loginResponse.access_token
+$userId = $loginResponse.user.id
+
+Write-Host "Obtained JWT: $jwt"
+Write-Host "User ID: $userId"
 
 $headers = @{
   "apikey"        = $anonKey

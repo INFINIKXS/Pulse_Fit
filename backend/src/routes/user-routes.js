@@ -6,5 +6,7 @@ const userController = require('../controllers/user-controller');
 router.get('/me', userController.getMe);
 // PUT /api/users/me
 router.put('/me', userController.updateMe);
+// DELETE /api/users/me
+router.delete('/me', userController.deleteMe);
 
 module.exports = router;

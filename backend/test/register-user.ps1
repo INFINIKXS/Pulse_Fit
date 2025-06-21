@@ -1,4 +1,4 @@
-# PowerShell script to test Supabase user registration via direct API
+# PowerShell script to test Supabase user registration via backend API and keep .env parsing
 $envPath = "..\..\backend\.env"
 
 # Load .env and extract Supabase credentials, removing any surrounding quotes
@@ -10,19 +10,21 @@ Get-Content $envPath | ForEach-Object {
 Write-Host "Supabase URL: $supabaseUrl"
 Write-Host "Anon Key: $anonKey"
 
+$backendUrl = "http://localhost:4000/api/auth/register"  # Change port if needed
+
 $headers = @{
-  "apikey"        = $anonKey
-  "Authorization" = "Bearer $anonKey"
   "Content-Type"  = "application/json"
 }
 
 $body = @{
-  email    = "ifeanyiobasi65@gmail.com"
-  password = "ABCD1234"
+  email     = "ifeanyiobasi65@gmail.com"
+  password  = "ABCD1234"
+  full_name = "Ifeanyi Obasi"
+  age       = 28
 } | ConvertTo-Json
 
 Invoke-RestMethod `
-  -Uri "$supabaseUrl/auth/v1/signup" `
+  -Uri $backendUrl `
   -Method Post `
   -Headers $headers `
   -Body $body
