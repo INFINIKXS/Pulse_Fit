@@ -36,3 +36,11 @@ files/
 # Ignore node modules and build artifacts
 dist/
 build/
+
+# Ignore sensitive and local files
+.env
+*.env
+node_modules/
+.DS_Store
+*.log
+files/
