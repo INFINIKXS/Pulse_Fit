@@ -14,10 +14,12 @@ $backendUrl = "http://localhost:4000/api/auth/register"  # Change port if needed
 
 $headers = @{
   "Content-Type"  = "application/json"
+  "apikey"        = $anonKey
+  "Authorization" = "Bearer $anonKey"
 }
 
 $body = @{
-  email     = "ifeanyiobasi65@gmail.com"
+  email     = "ifeanyiobasi66@gmail.com"
   password  = "ABCD1234"
   full_name = "Ifeanyi Obasi"
   age       = 28

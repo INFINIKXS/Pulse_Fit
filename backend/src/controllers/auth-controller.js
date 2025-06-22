@@ -2,19 +2,23 @@
 const authService = require('../services/auth-service');
 const { validationResult } = require('express-validator');
 
+function handleApiError(res, error, code = 'INTERNAL_ERROR', status = 500, details = undefined) {
+  return res.status(status).json({
+    success: false,
+    error: {
+      message: error.message || 'An error occurred',
+      code,
+      details: details || error.details || undefined
+    }
+  });
+}
+
 module.exports = {
   async register(req, res, next) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'Validation failed',
-            code: 'VALIDATION_ERROR',
-            details: errors.array()
-          }
-        });
+        return handleApiError(res, { message: 'Validation failed' }, 'VALIDATION_ERROR', 400, errors.array());
       }
       // Delegate to service
       const result = await authService.register(req.body);
@@ -24,7 +28,7 @@ module.exports = {
         message: 'User registered successfully'
       });
     } catch (error) {
-      next(error);
+      return handleApiError(res, error, 'REGISTER_FAILED', 500, error.details);
     }
   },
 
@@ -32,14 +36,7 @@ module.exports = {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'Validation failed',
-            code: 'VALIDATION_ERROR',
-            details: errors.array()
-          }
-        });
+        return handleApiError(res, { message: 'Validation failed' }, 'VALIDATION_ERROR', 400, errors.array());
       }
       // Delegate to service
       const result = await authService.login(req.body);
@@ -49,7 +46,7 @@ module.exports = {
         message: 'Login successful'
       });
     } catch (error) {
-      next(error);
+      return handleApiError(res, error, 'LOGIN_FAILED', 500, error.details);
     }
   }
 };

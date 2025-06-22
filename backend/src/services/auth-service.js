@@ -12,20 +12,36 @@ module.exports = {
     });
     if (error) throw new Error(error.message);
     let userId = data.user && data.user.id;
+    console.log('Supabase Auth userId:', userId);
     if (!userId) {
       // Fallback: fetch user by email using admin client
       const { data: userData, error: fetchError } = await supabaseAdmin.auth.admin.listUsers({ email });
-      if (fetchError || !userData.users || userData.users.length === 0) throw new Error('User creation failed');
+      if (fetchError || !userData.users || userData.users.length === 0) {
+        console.error('User creation failed or user not found after signUp:', fetchError);
+        throw new Error('User creation failed');
+      }
       userId = userData.users[0].id;
+      console.log('Fetched userId from admin:', userId);
     }
     // Automatically create profile in profiles table with provided details
     const { data: profileData, error: profileError } = await supabaseAdmin
       .from('profiles')
       .insert([{ id: userId, full_name, age }]);
     if (profileError) {
-      console.error('Profile creation error:', profileError.message);
+      console.error('Profile creation error:', profileError.message, profileError.details);
       throw new Error(profileError.message);
     }
+    console.log('Profile created:', profileData);
+    // Insert into custom users table (public.users)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const { data: userInsertData, error: userTableError } = await supabaseAdmin
+      .from('users')
+      .insert([{ id: userId, email, password: hashedPassword }]);
+    if (userTableError) {
+      console.error('Custom users table insert error:', userTableError.message, userTableError.details);
+      throw new Error(userTableError.message);
+    }
+    console.log('User inserted into custom users table:', userInsertData);
     return { user: { id: userId, email, full_name, age } };
   },
 

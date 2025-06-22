@@ -1,42 +1,32 @@
 // src/middleware/auth-middleware.js
 const { supabaseAdmin } = require('../config/supabase-client');
 
+function handleApiError(res, error, code = 'INTERNAL_ERROR', status = 500, details = undefined) {
+  return res.status(status).json({
+    success: false,
+    error: {
+      message: error.message || 'An error occurred',
+      code,
+      details: details || error.details || undefined
+    }
+  });
+}
+
 async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      error: {
-        message: 'No token provided',
-        code: 'NO_TOKEN'
-      }
-    });
+    return handleApiError(res, { message: 'No token provided' }, 'NO_TOKEN', 401);
   }
   try {
-    // Verify JWT with Supabase
     const { data, error } = await supabaseAdmin.auth.getUser(token);
     if (error || !data || !data.user) {
-      return res.status(401).json({
-        success: false,
-        error: {
-          message: 'Invalid or expired token',
-          code: 'INVALID_TOKEN',
-          details: error
-        }
-      });
+      return handleApiError(res, { message: 'Invalid or expired token', details: error }, 'INVALID_TOKEN', 401);
     }
     req.user = data.user;
     next();
   } catch (err) {
-    return res.status(401).json({
-      success: false,
-      error: {
-        message: 'Authentication failed',
-        code: 'AUTH_FAILED',
-        details: err.message
-      }
-    });
+    return handleApiError(res, { message: 'Authentication failed', details: err.message }, 'AUTH_FAILED', 401);
   }
 }
 

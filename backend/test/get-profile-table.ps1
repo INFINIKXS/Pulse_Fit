@@ -11,7 +11,7 @@ Write-Host "Supabase URL: $supabaseUrl"
 Write-Host "Anon Key: $anonKey"
 
 # User credentials for login (replace with test user as needed)
-$email = "ifeanyiobasi65@gmail.com"
+$email = "ifeanyiobasi66@gmail.com"
 $password = "ABCD1234"
 
 # Login to get JWT access token and user id

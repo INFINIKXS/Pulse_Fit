@@ -2,7 +2,7 @@
 $backendUrl = "http://localhost:4000/api/users/me" # Adjust port if needed
 
 # User credentials for login (replace with test user as needed)
-$email = "ifeanyiobasi65@gmail.com"
+$email = "ifeanyiobasi66@gmail.com"
 $password = "ABCD1234"
 
 # Load .env and extract Supabase credentials
