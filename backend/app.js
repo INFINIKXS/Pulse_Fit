@@ -9,6 +9,7 @@ const authRoutes = require('./src/routes/auth-routes');
 const { authenticateToken } = require('./src/middleware/auth-middleware');
 const userRoutes = require('./src/routes/user-routes');
 const goalRoutes = require('./src/routes/goals');
+const activitiesRoutes = require('./src/routes/activities');
 // ...import other routes as needed...
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
 app.use('/api', goalRoutes);
+app.use('/api', activitiesRoutes);
 // ...register other routes as needed...
 
 // ...add error handler middleware if implemented...
