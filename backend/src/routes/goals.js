@@ -3,23 +3,50 @@
 
 const express = require('express');
 const router = express.Router();
-const { body } = require('express-validator');
-const authMiddleware = require('../middleware/auth-middleware');
+const { body, param } = require('express-validator');
+const { authenticateToken } = require('../middleware/auth-middleware');
+const goalController = require('../controllers/goal-controller');
 
-// POST /api/users/me/goals
+// POST /users/me/goals
 router.post(
-  '/api/users/me/goals',
-  authMiddleware,
+  '/users/me/goals',
+  authenticateToken,
   [
     body('goal_type').isString().notEmpty(),
     body('target_value').isNumeric(),
     body('start_date').optional().isISO8601(),
     body('end_date').optional().isISO8601()
   ],
-  async (req, res) => {
-    // TODO: Implement controller logic
-    return res.status(501).json({ error: 'Not implemented' });
-  }
+  goalController.createGoal
+);
+
+// GET /users/me/goals
+router.get(
+  '/users/me/goals',
+  authenticateToken,
+  goalController.getGoals
+);
+
+// PUT /users/me/goals/:id
+router.put(
+  '/users/me/goals/:id',
+  authenticateToken,
+  [
+    param('id').isUUID(),
+    body('goal_type').optional().isString().notEmpty(),
+    body('target_value').optional().isNumeric(),
+    body('start_date').optional().isISO8601(),
+    body('end_date').optional().isISO8601()
+  ],
+  goalController.updateGoal
+);
+
+// DELETE /users/me/goals/:id
+router.delete(
+  '/users/me/goals/:id',
+  authenticateToken,
+  [param('id').isUUID()],
+  goalController.deleteGoal
 );
 
 module.exports = router;

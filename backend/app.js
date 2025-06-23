@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 const authRoutes = require('./src/routes/auth-routes');
 const { authenticateToken } = require('./src/middleware/auth-middleware');
 const userRoutes = require('./src/routes/user-routes');
+const goalRoutes = require('./src/routes/goals');
 // ...import other routes as needed...
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 // Register routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', authenticateToken, userRoutes);
+app.use('/api', goalRoutes);
 // ...register other routes as needed...
 
 // ...add error handler middleware if implemented...
