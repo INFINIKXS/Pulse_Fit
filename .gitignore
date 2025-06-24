@@ -44,3 +44,7 @@ node_modules/
 .DS_Store
 *.log
 files/
+
+# Task files
+# tasks.json
+# tasks/ 

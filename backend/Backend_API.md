@@ -70,6 +70,37 @@ Authorization: Bearer <JWT>
 
 ---
 
+## Get User Progress
+
+**GET** `/api/users/me/progress`
+
+**Description:**
+Returns aggregated progress metrics for the authenticated user, including workouts completed, total calories burned, activity streaks, and other relevant fitness data.
+
+**Response:**
+- `200 OK` with progress metrics object
+- `401 Unauthorized` if not logged in
+
+**Example Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "workouts_completed": 42,
+    "total_calories": 12345,
+    "activity_streak": 7,
+    "goals_achieved": 3,
+    "last_activity_date": "2025-06-23",
+    "recent_activities": [
+      { "type": "run", "duration": 30, "calories": 300, "date": "2025-06-23" },
+      { "type": "cycle", "duration": 45, "calories": 400, "date": "2025-06-22" }
+    ]
+  }
+}
+```
+
+---
+
 ## Error Responses
 
 All error responses are JSON:
