@@ -19,4 +19,20 @@ Whenever you make changes to the backend API (add, remove, or modify endpoints, 
 **Goal:**
 Keep `Backend_API.md` as the single source of truth for your backend API, so developers and testers always have the latest reference.
 
+---
+
+## Task Management Rule: Detailed Implementation Plan
+
+Before starting any new task, always create a detailed implementation plan. This plan will guide your work and ensure all aspects of the task are considered.
+
+**How to create an implementation plan:**
+- Clearly define the task objective and desired outcome.
+- Break down the task into smaller, manageable steps or subtasks.
+- For each step, specify the actions required, the files or components involved, and the reasoning behind each action.
+- Identify any potential challenges or dependencies and how to address them.
+- Review the plan to ensure completeness and clarity before starting the actual implementation.
+
+**Goal:**
+Have a well-structured plan for every task, making the implementation process smoother and more efficient, and reducing the likelihood of errors or omissions.
+
 # ...existing code...

@@ -1,12 +1,14 @@
-const { supabaseAdmin } = require('../config/supabase-client');
+const { getUserSupabaseClient } = require('../config/supabase-client');
 
 exports.getActivities = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
   }
   try {
-    const { data, error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { data, error } = await supabase
       .from('activities')
       .select('*')
       .eq('user_id', userId)
@@ -21,13 +23,15 @@ exports.getActivities = async (req, res) => {
 };
 
 exports.createActivity = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
   }
   const { type, duration, distance, calories, date, notes } = req.body;
   try {
-    const { data, error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { data, error } = await supabase
       .from('activities')
       .insert([{ user_id: userId, type, duration, distance, calories, date, notes }])
       .select()
@@ -42,13 +46,15 @@ exports.createActivity = async (req, res) => {
 };
 
 exports.getActivityById = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
   const { id } = req.params;
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
   }
   try {
-    const { data, error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { data, error } = await supabase
       .from('activities')
       .select('*')
       .eq('id', id)
@@ -64,14 +70,16 @@ exports.getActivityById = async (req, res) => {
 };
 
 exports.updateActivity = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
   const { id } = req.params;
   const { type, duration, distance, calories, date, notes } = req.body;
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
   }
   try {
-    const { data, error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { data, error } = await supabase
       .from('activities')
       .update({ type, duration, distance, calories, date, notes })
       .eq('id', id)
@@ -88,13 +96,15 @@ exports.updateActivity = async (req, res) => {
 };
 
 exports.deleteActivity = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
   const { id } = req.params;
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
   }
   try {
-    const { error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { error } = await supabase
       .from('activities')
       .delete()
       .eq('id', id)

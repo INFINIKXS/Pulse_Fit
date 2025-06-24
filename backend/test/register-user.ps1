@@ -19,7 +19,7 @@ $headers = @{
 }
 
 $body = @{
-  email     = "ifeanyiobasi66@gmail.com"
+  email     = "ifeanyiobasi65@gmail.com"
   password  = "ABCD1234"
   full_name = "Ifeanyi Obasi"
   age       = 28

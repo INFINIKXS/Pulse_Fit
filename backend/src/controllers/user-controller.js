@@ -1,9 +1,10 @@
-const { supabaseClient, supabaseAdmin } = require('../config/supabase-client');
+const { getUserSupabaseClient, supabaseAdmin } = require('../config/supabase-client');
 const path = require('path');
 
-async function getSignedAvatarUrl(avatarPath) {
+async function getSignedAvatarUrl(avatarPath, jwt) {
   if (!avatarPath) return null;
-  const { data, error } = await supabaseClient.storage.from('avatars').createSignedUrl(avatarPath, 60 * 60); // 1 hour expiry
+  const supabase = getUserSupabaseClient(jwt);
+  const { data, error } = await supabase.storage.from('avatars').createSignedUrl(avatarPath, 60 * 60); // 1 hour expiry
   if (error) return null;
   return data.signedUrl;
 }
@@ -22,8 +23,10 @@ function handleApiError(res, error, code = 'INTERNAL_ERROR', status = 500, detai
 module.exports = {
   async getMe(req, res, next) {
     try {
+      const jwt = req.user && req.user.token;
       const userId = req.user.id;
-      const { data, error } = await supabaseClient
+      const supabase = getUserSupabaseClient(jwt);
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
@@ -31,7 +34,7 @@ module.exports = {
       if (error) return handleApiError(res, error, 'PROFILE_NOT_FOUND', 404, error.details);
       if (!data) return handleApiError(res, { message: 'Profile not found' }, 'PROFILE_NOT_FOUND', 404);
       if (data.avatar_url) {
-        data.avatar_signed_url = await getSignedAvatarUrl(data.avatar_url);
+        data.avatar_signed_url = await getSignedAvatarUrl(data.avatar_url, jwt);
       }
       return res.json({
         success: true,
@@ -57,10 +60,11 @@ module.exports = {
       });
     }
     try {
+      const jwt = req.user && req.user.token;
       const userId = req.user.id;
       let updates = req.body;
       let avatarPath;
-
+      const supabase = getUserSupabaseClient(jwt);
       if (req.file) {
         const file = req.file;
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -72,7 +76,7 @@ module.exports = {
         }
         const ext = path.extname(file.originalname);
         avatarPath = `${userId}-${Date.now()}${ext}`;
-        const { error: uploadError } = await supabaseClient.storage.from('avatars').upload(avatarPath, file.buffer, {
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(avatarPath, file.buffer, {
           contentType: file.mimetype
         });
         if (uploadError) {
@@ -80,7 +84,7 @@ module.exports = {
         }
         updates.avatar_url = avatarPath;
       }
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from('profiles')
         .update(updates)
         .eq('id', userId)
@@ -88,7 +92,7 @@ module.exports = {
       if (error) return handleApiError(res, error, 'PROFILE_UPDATE_FAILED', 500, error.details);
       if (!data) return handleApiError(res, { message: 'Profile not found' }, 'PROFILE_NOT_FOUND', 404);
       if (data.avatar_url) {
-        data.avatar_signed_url = await getSignedAvatarUrl(data.avatar_url);
+        data.avatar_signed_url = await getSignedAvatarUrl(data.avatar_url, jwt);
       }
       return res.json({
         success: true,
@@ -102,8 +106,10 @@ module.exports = {
 
   async deleteMe(req, res, next) {
     try {
+      const jwt = req.user && req.user.token;
       const userId = req.user.id;
-      const { error: profileError } = await supabaseClient
+      const supabase = getUserSupabaseClient(jwt);
+      const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);

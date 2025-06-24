@@ -1,14 +1,15 @@
 // controllers/goal-controller.js
 // Controller for Fitness Goals API
 
-const { supabaseAdmin } = require('../config/supabase-client');
+const { getUserSupabaseClient } = require('../config/supabase-client');
 
 exports.createGoal = async (req, res) => {
   // Extract validated fields
   let { goal_type, target_value, start_date, end_date } = req.body;
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
 
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -24,7 +25,8 @@ exports.createGoal = async (req, res) => {
   }
 
   try {
-    const { data, error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { data, error } = await supabase
       .from('fitness_goals')
       .insert([
         {
@@ -52,12 +54,14 @@ exports.createGoal = async (req, res) => {
 };
 
 exports.getGoals = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    const { data, error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { data, error } = await supabase
       .from('fitness_goals')
       .select('*')
       .eq('user_id', userId)
@@ -72,29 +76,27 @@ exports.getGoals = async (req, res) => {
 };
 
 exports.updateGoal = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
   const { id } = req.params;
   const { goal_type, target_value, start_date, end_date } = req.body;
-  console.log('UpdateGoal debug:', { userId, id, userIdType: typeof userId, idType: typeof id, goal_type, target_value, start_date, end_date });
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    // Check if the goal exists for this user before updating
-    const { data: existingGoal, error: selectError } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { data: existingGoal, error: selectError } = await supabase
       .from('fitness_goals')
       .select('*')
       .eq('id', id)
       .eq('user_id', userId);
-    console.log('Pre-update select:', { existingGoal, selectError });
     if (selectError) {
       return res.status(400).json({ error: selectError.message, details: selectError.details });
     }
     if (!existingGoal || existingGoal.length === 0) {
       return res.status(404).json({ error: 'Goal not found (pre-update select)' });
     }
-    // Perform the update
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('fitness_goals')
       .update({ goal_type, target_value, start_date, end_date })
       .eq('id', id)
@@ -103,9 +105,7 @@ exports.updateGoal = async (req, res) => {
     if (error) {
       return res.status(400).json({ error: error.message, details: error.details });
     }
-    // If no rows were updated, but the goal exists, it means no actual change was made
     if (!data || data.length === 0) {
-      // Fetch the goal again and return it as 'updated'
       return res.status(200).json({ message: 'Goal already up to date', goal: existingGoal[0] });
     }
     return res.status(200).json({ message: 'Goal updated', goal: data[0] });
@@ -115,13 +115,15 @@ exports.updateGoal = async (req, res) => {
 };
 
 exports.deleteGoal = async (req, res) => {
+  const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
   const { id } = req.params;
-  if (!userId) {
+  if (!jwt || !userId) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    const { error } = await supabaseAdmin
+    const supabase = getUserSupabaseClient(jwt);
+    const { error } = await supabase
       .from('fitness_goals')
       .delete()
       .eq('id', id)
