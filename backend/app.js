@@ -12,6 +12,8 @@ const goalRoutes = require('./src/routes/goals');
 const activitiesRoutes = require('./src/routes/activities');
 const workoutsRoutes = require('./src/routes/workouts');
 const progressRoutes = require('./src/routes/progress');
+const nutritionRoutes = require('./src/routes/nutrition');
+const analyticsRoutes = require('./src/routes/analytics');
 // ...import other routes as needed...
 
 const app = express();
@@ -31,6 +33,8 @@ app.use('/api', goalRoutes);
 app.use('/api', activitiesRoutes);
 app.use('/api/workouts', workoutsRoutes);
 app.use('/api', progressRoutes);
+app.use('/api/nutrition', nutritionRoutes);
+app.use('/api/analytics', analyticsRoutes);
 // ...register other routes as needed...
 
 // ...add error handler middleware if implemented...
