@@ -1,0 +1,126 @@
+{
+  "mcpServers": [],
+  "geminicodeassist.agentYoloMode": false,
+  "IDX.aI.enableCodebaseIndexing": true,
+  "IDX.aI.enableInlineCompletion": true,
+  "mcp": {
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "apiKey",
+        "description": "Enter your API key"
+      },
+      {
+        "id": "github_token",
+        "type": "promptString",
+        "description": "GitHub Personal Access Token",
+        "password": true
+      }
+    ],
+    "servers": {
+      "mcp-server-time": {
+        "command": "python",
+        "args": [
+          "-m",
+          "mcp_server_time",
+          "--local-timezone=America/Los_Angeles"
+        ],
+        "env": {}
+      },
+      "context7": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@upstash/context7-mcp"
+        ]
+      },
+      "taskmaster-ai": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "--package=task-master-ai",
+          "task-master-ai"
+        ],
+        "env": {
+          "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
+          "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
+          "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
+          "GOOGLE_API_KEY": "AIzaSyCtBPgHZ5dLe6E26S-iJaChY2CKVOs_SGk",
+          "MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
+          "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
+          "XAI_API_KEY": "YOUR_XAI_KEY_HERE",
+          "AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE"
+        },
+        "type": "stdio"
+      },
+      "brave": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-brave-search"
+        ],
+        "env": {
+          "BRAVE_API_KEY": "${input:brave_api_key}"
+        }
+      },
+      "supabase": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@supabase/mcp-server-supabase@latest",
+          "--access-token",
+          "sbp_6fe501d2f7ca026caac35e6ca43ed34235c7954d"
+        ]
+      },
+      "filesystem": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
+          "C://P-coding-agent",
+          "C://Users//pc//Downloads",
+          "C://Users//pc//Desktop",
+          "C://Pulse_Fit"
+        ]
+      },
+      "browsermcp": {
+        "command": "npx",
+        "args": [
+          "@browsermcp/mcp@latest"
+        ]
+      },
+      "exa": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "exa-mcp-server",
+          "--tools=web_search_exa,research_paper_search,company_research,crawling,competitor_finder,linkedin_search,wikipedia_search_exa,github_search"
+        ],
+        "env": {
+          "EXA_API_KEY": "a79018f8-550e-4e6e-b77b-7d0a71892eb1"
+        }
+      },
+      "memory": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-memory"
+        ],
+        "env": {
+          "MEMORY_FILE_PATH": "G://My Drive//Digital Memory//Memories.json"
+        }
+      },
+      "github": {
+        "type": "http",
+        "url": "https://api.githubcopilot.com/mcp/"
+      },
+      "playwright": {
+        "command": "npx",
+        "args": [
+          "@playwright/mcp@latest"
+        ]
+      }
+    }
+  }
+}

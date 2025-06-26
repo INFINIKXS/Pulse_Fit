@@ -1,7 +1,6 @@
 // src/controllers/progress-controller.js
 const { getUserSupabaseClient } = require('../config/supabase-client');
 
-// GET /api/users/me/progress
 exports.getUserProgress = async (req, res) => {
   const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.sub);

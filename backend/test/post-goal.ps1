@@ -13,12 +13,13 @@
 
 param(
     [Parameter(Mandatory=$false)]
+    [string]$Goal = "Weight Loss",
+    [Parameter(Mandatory=$false)]
     [string]$GoalType = "8_packs",
     [Parameter(Mandatory=$false)]
     [double]$TargetValue = 10,
     [string]$StartDate = "2025-06-23",
     [string]$EndDate ="2025-07-23"
-
 )
 
 $envPath = "..\..\backend\.env"
@@ -48,6 +49,7 @@ Write-Host "Obtained JWT: $jwt"
 $body = @{ goal_type = $GoalType; target_value = $TargetValue }
 if ($StartDate) { $body.start_date = $StartDate }
 if ($EndDate) { $body.end_date = $EndDate }
+if ($Goal) { $body.goal = $Goal }
 
 $headers = @{ Authorization = "Bearer $jwt"; 'Content-Type' = 'application/json' }
 

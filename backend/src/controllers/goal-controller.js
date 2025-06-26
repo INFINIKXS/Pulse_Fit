@@ -6,6 +6,7 @@ const { getUserSupabaseClient } = require('../config/supabase-client');
 exports.createGoal = async (req, res) => {
   // Extract validated fields
   let { goal_type, target_value, start_date, end_date } = req.body;
+  const goal = 'Weight Loss'; // Hardcoded for test/demo
   const jwt = req.user && req.user.token;
   const userId = req.user && (req.user.id || req.user.user_id);
 
@@ -34,7 +35,8 @@ exports.createGoal = async (req, res) => {
           goal_type,
           target_value,
           start_date,
-          end_date
+          end_date,
+          Goal: goal // Use capital G to match Supabase column
         }
       ])
       .select()

@@ -184,3 +184,45 @@ exports.deleteWorkoutById = async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
+
+// Get recommended workouts based on user's primary fitness goal and preferred workout type
+exports.getRecommendedWorkouts = async (req, res) => {
+  try {
+    const jwt = req.user && req.user.token;
+    const userId = req.user && req.user.sub;
+    if (!jwt || !userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: JWT or userId missing' });
+    }
+    const userSupabase = getUserSupabaseClient(jwt);
+
+    // 1. Fetch user's primary fitness goal
+    const { data: goals, error: goalError } = await userSupabase
+      .from('fitness_goals')
+      .select('"Goal"') // Use quoted capital G to match Supabase
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (goalError) {
+      console.error('Error fetching fitness goal:', goalError.message);
+      return res.status(500).json({ success: false, error: 'Failed to retrieve fitness goal.' });
+    }
+
+    if (!goals || goals.length === 0) {
+      return res.status(404).json({ success: false, error: 'No fitness goal found for user' });
+    }
+    
+    // 2. Fetch all workouts. Filtering by goal is not supported by the current schema.
+    const { data: workouts, error: workoutError } = await userSupabase.from('workouts').select('*');
+
+    if (workoutError) {
+      console.error('Error fetching workouts:', workoutError.message);
+      return res.status(500).json({ success: false, error: 'Failed to retrieve workouts.' });
+    }
+
+    res.json({ success: true, data: workouts });
+  } catch (err) {
+    // Generic catch block for any other unexpected errors
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
