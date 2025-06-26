@@ -53,7 +53,15 @@ module.exports = {
     });
     if (error) throw new Error(error.message);
     // Generate JWT (if needed, or use Supabase's)
-    // ...
-    return { user: data.user, session: data.session };
+    const token = data.session && data.session.access_token;
+    if (!token) {
+      throw new Error('No JWT token returned from Supabase Auth.');
+    }
+    // Return a standard structure for frontend/tests
+    return {
+      token, // <-- JWT for Authorization header
+      user: data.user,
+      session: data.session
+    };
   }
 };

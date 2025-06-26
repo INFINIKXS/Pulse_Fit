@@ -3,6 +3,9 @@ const router = express.Router();
 const workoutController = require('../controllers/workout-controller');
 const { authenticateToken } = require('../middleware/auth-middleware');
 
+// GET /api/workouts/recommended - Get recommended workouts for the user
+router.get('/recommended', authenticateToken, workoutController.getRecommendedWorkouts);
+
 // GET /api/workouts - List all workouts
 router.get('/', authenticateToken, workoutController.getAllWorkouts);
 

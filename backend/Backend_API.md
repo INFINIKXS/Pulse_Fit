@@ -75,26 +75,56 @@ Authorization: Bearer <JWT>
 **GET** `/api/users/me/progress`
 
 **Description:**
-Returns aggregated progress metrics for the authenticated user, including workouts completed, total calories burned, activity streaks, and other relevant fitness data.
+Returns aggregated progress metrics and insights for the authenticated user. This includes:
+- Total workouts completed
+- Total calories burned
+- Number of active days
+- Number of goals achieved
+- Date of last activity
+- Recent activities (last 2)
+- Dynamic insights based on user progress
+
+**Authentication:**
+Requires a valid JWT in the `Authorization` header:
+```
+Authorization: Bearer <JWT>
+```
 
 **Response:**
-- `200 OK` with progress metrics object
-- `401 Unauthorized` if not logged in
+- `200 OK` with progress metrics and insights object
+- `401 Unauthorized` if not logged in or JWT is invalid
+- `500 Internal Server Error` on aggregation failure
 
-**Example Response:**
+**Response Schema:**
 ```json
 {
   "success": true,
   "data": {
     "workouts_completed": 42,
     "total_calories": 12345,
-    "activity_streak": 7,
+    "activity_days": 14,
     "goals_achieved": 3,
     "last_activity_date": "2025-06-23",
     "recent_activities": [
       { "type": "run", "duration": 30, "calories": 300, "date": "2025-06-23" },
       { "type": "cycle", "duration": 45, "calories": 400, "date": "2025-06-22" }
+    ],
+    "insights": [
+      "Great job! You have a 7-day activity streak. Keep it up!",
+      "You have burned over 10,000 calories. Amazing progress!",
+      "You have achieved 3 fitness goals."
     ]
+  }
+}
+```
+
+**Error Response Example:**
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Failed to aggregate progress",
+    "details": "<error details>"
   }
 }
 ```
