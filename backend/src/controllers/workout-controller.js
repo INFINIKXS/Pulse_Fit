@@ -211,9 +211,28 @@ exports.getRecommendedWorkouts = async (req, res) => {
     if (!goals || goals.length === 0) {
       return res.status(404).json({ success: false, error: 'No fitness goal found for user' });
     }
-    
-    // 2. Fetch all workouts. Filtering by goal is not supported by the current schema.
-    const { data: workouts, error: workoutError } = await userSupabase.from('workouts').select('*');
+
+    // 2. Fetch user's preferred workout type from profile
+    const { data: profiles, error: profileError } = await userSupabase
+      .from('profiles')
+      .select('preferred_workout_type')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError.message);
+      return res.status(500).json({ success: false, error: 'Failed to retrieve user profile.' });
+    }
+
+    const preferredType = profiles && profiles.preferred_workout_type;
+
+    // 3. Fetch workouts, filter by preferred type if set
+    let workoutQuery = userSupabase.from('workouts').select('*');
+    if (preferredType) {
+      workoutQuery = workoutQuery.eq('type', preferredType);
+    }
+    // Optionally, add more filters here (e.g., by goal)
+    const { data: workouts, error: workoutError } = await workoutQuery;
 
     if (workoutError) {
       console.error('Error fetching workouts:', workoutError.message);

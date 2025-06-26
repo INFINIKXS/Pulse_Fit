@@ -44,7 +44,7 @@ node_modules/
 .DS_Store
 *.log
 files/
-
+gemini.md
 # Task files
 # tasks.json
 # tasks/ 
