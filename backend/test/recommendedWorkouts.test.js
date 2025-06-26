@@ -103,4 +103,59 @@ describe('/api/workouts/recommended', () => {
       .get('/api/workouts/recommended');
     expect(res.statusCode).toBe(401);
   });
+
+  it('returns only workouts matching preferred type if set', async () => {
+    const admin = getAdminClient();
+    // Set preferred_workout_type to 'cardio' for the test user
+    await admin.from('profiles').update({ preferred_workout_type: 'cardio' }).eq('id', userId);
+    // Insert workouts of different types
+    await admin.from('workouts').delete().eq('user_id', userId); // Clean up old workouts
+    await admin.from('workouts').insert([
+      { user_id: userId, name: 'Cardio Blast', description: 'Cardio session', duration: 30, difficulty: 'easy', type: 'cardio' },
+      { user_id: userId, name: 'Strength Builder', description: 'Strength session', duration: 30, difficulty: 'medium', type: 'strength' }
+    ]);
+    const res = await request(app)
+      .get('/api/workouts/recommended')
+      .set('Authorization', `Bearer ${jwtToken}`);
+    expect(res.statusCode).toBe(200);
+    const names = res.body.data.map(w => w.name);
+    expect(names).toContain('Cardio Blast');
+    expect(names).not.toContain('Strength Builder');
+  });
+
+  it('returns all workouts if preferred type is not set', async () => {
+    const admin = getAdminClient();
+    // Remove preferred_workout_type for the test user
+    await admin.from('profiles').update({ preferred_workout_type: null }).eq('id', userId);
+    // Insert workouts of different types
+    await admin.from('workouts').delete().eq('user_id', userId); // Clean up old workouts
+    await admin.from('workouts').insert([
+      { user_id: userId, name: 'Cardio Blast', description: 'Cardio session', duration: 30, difficulty: 'easy', type: 'cardio' },
+      { user_id: userId, name: 'Strength Builder', description: 'Strength session', duration: 30, difficulty: 'medium', type: 'strength' }
+    ]);
+    const res = await request(app)
+      .get('/api/workouts/recommended')
+      .set('Authorization', `Bearer ${jwtToken}`);
+    expect(res.statusCode).toBe(200);
+    const names = res.body.data.map(w => w.name);
+    expect(names).toContain('Cardio Blast');
+    expect(names).toContain('Strength Builder');
+  });
+
+  it('returns empty array if no workouts match preferred type', async () => {
+    const admin = getAdminClient();
+    // Set preferred_workout_type to 'yoga' for the test user
+    await admin.from('profiles').update({ preferred_workout_type: 'yoga' }).eq('id', userId);
+    // Insert only non-yoga workouts
+    await admin.from('workouts').delete().eq('user_id', userId); // Clean up old workouts
+    await admin.from('workouts').insert([
+      { user_id: userId, name: 'Cardio Blast', description: 'Cardio session', duration: 30, difficulty: 'easy', type: 'cardio' }
+    ]);
+    const res = await request(app)
+      .get('/api/workouts/recommended')
+      .set('Authorization', `Bearer ${jwtToken}`);
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBe(0);
+  });
 });
