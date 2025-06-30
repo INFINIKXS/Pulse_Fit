@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import bgImage from '../assets/images/auth-bg.jpg';
 import logo from '../assets/images/pulsefit-logo.png';
@@ -23,6 +24,7 @@ export default function SignupScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="light" translucent backgroundColor="transparent" />
       <View style={styles.roundedClip}>
         <Image source={bgImage} style={styles.backgroundImage} />
         <View style={styles.overlay} />
@@ -32,14 +34,14 @@ export default function SignupScreen({ navigation }: Props) {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#bbb"
+            placeholderTextColor="#000"
             value={email}
             onChangeText={setEmail}
           />
           <TextInput
             style={styles.inputPassword}
             placeholder="Create Password"
-            placeholderTextColor="#bbb"
+            placeholderTextColor="#000"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -47,7 +49,7 @@ export default function SignupScreen({ navigation }: Props) {
           <TextInput
             style={styles.inputConfirm}
             placeholder="Confirm Password"
-            placeholderTextColor="#bbb"
+            placeholderTextColor="#000"
             secureTextEntry
             value={confirmPassword}
             onChangeText={setConfirmPassword}
@@ -87,6 +89,29 @@ export default function SignupScreen({ navigation }: Props) {
           <Text style={styles.loginText}>
             Already have an account?{' '}
             <Text style={styles.loginLink} onPress={() => navigation.navigate('Login')}>Log In</Text>
+          </Text>
+          <Text
+            style={{
+              position: 'absolute',
+              top: 125.86,
+              left: 125.42,
+              width: 200,
+              height: 78,
+              fontFamily: 'Kadwa-Bold', // Use Kadwa Regular
+              fontWeight: '500',
+              fontSize: 27.47,
+              lineHeight: 31.47,
+              letterSpacing: 1.52,
+              color: '#fff',
+              textAlign: 'center',
+              borderRadius: 6,
+              paddingHorizontal: 8,
+              paddingVertical: 1,
+              overflow: 'hidden',
+            }}
+          >
+            {'Pulse'}
+            <Text style={{ color: '#00D100', fontFamily: 'Kadwa-Bold', fontWeight: '500' }}>{'FIT'}</Text>
           </Text>
         </View>
       </View>
@@ -140,82 +165,87 @@ const styles = StyleSheet.create({
     height: 94.75,
     position: 'absolute',
     top: 98,
-    left: 101,
+    left: 51,
     marginBottom: 10,
+  
   },
   title: {
     color: '#fff',
     fontSize: 25,
-    fontWeight: '700',
+    fontWeight: '500', // Make title bold
+    fontFamily: 'FamiljenGrotesk-Bold', // Use bold variant
     alignSelf: 'flex-start',
-    fontFamily: 'Familjen Grotesk',
     position: 'absolute',
     top: 189,
     left: 30,
-    width: 99,
-    height: 31,
+    width: 150,
+    height: 36,
     lineHeight: 25,
     letterSpacing: 0,
   },
   input: {
-    width: 353,
-    height: 52,
+    width: 325,
+    height: 53,
     borderRadius: 20,
     paddingHorizontal: 20,
-    color: '#fff',
-    fontSize: 16,
-    backgroundColor: 'rgba(255,255,255,0.4)',
+    color: '#000000',
+    fontSize: 14,
+    backgroundColor: 'rgba(255,255,255,0.43)', // set to 0.43 opacity
     position: 'absolute',
     top: 241,
-    left: 20,
-    opacity: 0.4,
+    left: 33,
+    opacity: 1,
     marginBottom: 15,
+    fontFamily: 'FamiljenGrotesk-Regular',
   },
   inputPassword: {
-    width: 353,
-    height: 52,
+    width: 325,
+    height: 53,
     borderRadius: 20,
     paddingHorizontal: 20,
-    color: '#fff',
-    fontSize: 16,
-    backgroundColor: 'rgba(255,255,255,0.4)',
+    color: '#000000',
+    fontSize: 14,
+    backgroundColor: 'rgba(255,255,255,0.43)', // set to 0.43 opacity
     position: 'absolute',
     top: 308,
-    left: 20,
-    opacity: 0.4,
+    left: 33,
+    opacity: 1,
     marginBottom: 15,
+    fontFamily: 'FamiljenGrotesk-Regular',
   },
   inputConfirm: {
-    width: 353,
-    height: 52,
+    width: 325,
+    height: 53,
     borderRadius: 20,
     paddingHorizontal: 20,
-    color: '#fff',
-    fontSize: 16,
-    backgroundColor: 'rgba(255,255,255,0.4)',
+    color: '#000000',
+    fontSize: 14,
+    backgroundColor: 'rgba(255,255,255,0.43)', // set to 0.43 opacity
     position: 'absolute',
     top: 377,
-    left: 20,
-    opacity: 0.4,
+    left: 33,
+    opacity: 1,
     marginBottom: 15,
+    fontFamily: 'FamiljenGrotesk-Regular',
   },
   signupButton: {
-    width: 353,
-    height: 52,
-    backgroundColor: '#00D100',
+    width: 325,
+    height: 58,
+    backgroundColor: '#00B300', // Updated to requested green
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
     top: 464,
-    left: 20,
+    left: 33,
     marginTop: 0,
     marginBottom: 15,
   },
   signupButtonText: {
-    color: '#000',
-    fontWeight: 'bold',
+    color: '#000', // Use pure black for maximum contrast
+    fontWeight: '500',
     fontSize: 18,
+    fontFamily: 'FamiljenGrotesk-Bold', // Use bold variant
   },
   orText: {
     width: 200,
@@ -223,13 +253,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 552,
     left: 98,
-    fontFamily: 'Familjen Grotesk',
-    fontWeight: '700',
+    fontWeight: '500',
     fontSize: 16,
     lineHeight: 20,
     letterSpacing: 0,
     color: '#fff',
     textAlign: 'center',
+    fontFamily: 'FamiljenGrotesk-Bold',
   },
   socialRow: {
     flexDirection: 'row',
@@ -258,8 +288,8 @@ const styles = StyleSheet.create({
     width: 135,
     height: 52,
     borderRadius: 23,
-    backgroundColor: '#eee',
-    opacity: 0.5,
+    backgroundColor: 'rgba(255,255,255,0.4)', // match email input box
+    opacity: 1,
     marginRight: 20,
   },
   appleButton: {
@@ -269,13 +299,14 @@ const styles = StyleSheet.create({
     width: 135,
     height: 52,
     borderRadius: 23,
-    backgroundColor: '#eee',
-    opacity: 0.5,
+    backgroundColor: 'rgba(255,255,255,0.4)', // match email input box
+    opacity: 1,
   },
   socialIcon: {
     width: 30,
     height: 30,
     marginRight: 10,
+    tintColor: undefined, // Google icon should keep its color
   },
   appleIcon: {
     width: 40, // bigger than google icon
@@ -283,53 +314,48 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   googleText: {
-    fontFamily: 'Familjen Grotesk',
-    fontWeight: '400',
-    fontSize: 15,
-    lineHeight: 19,
-    letterSpacing: 0,
-    color: 'black',
-  },
-  appleText: {
-    fontFamily: 'Familjen Grotesk',
-    fontWeight: '400',
+    fontWeight: '600',
     fontSize: 15,
     lineHeight: 19,
     letterSpacing: 0,
     color: '#000',
+    fontFamily: 'FamiljenGrotesk-Regular',
   },
-  socialText: {
-    color: '#222',
+  appleText: {
     fontWeight: '600',
     fontSize: 15,
+    lineHeight: 19,
+    letterSpacing: 0,
+    color: '#000',
+    fontFamily: 'FamiljenGrotesk-Regular',
   },
   loginText: {
-    fontFamily: 'Familjen Grotesk',
     fontWeight: '400',
     fontSize: 15,
-    lineHeight: 15,
+    lineHeight: 8,
     letterSpacing: 0,
     color: '#fff',
     textAlign: 'center',
     width: 307,
-    height: 19,
+    height: 20,
     position: 'absolute',
     top: 678,
-    left: 40,
+    left: 42,
     includeFontPadding: false,
     textAlignVertical: 'center',
     flexDirection: 'row',
     flexWrap: 'nowrap',
     alignItems: 'center',
     justifyContent: 'center',
+    fontFamily: 'FamiljenGrotesk-Regular',
   },
   loginLink: {
-    fontFamily: 'Familjen Grotesk',
-    fontWeight: '400',
+    fontWeight: '500',
     fontSize: 15,
     lineHeight: 15,
     letterSpacing: 0,
     color: '#00D100',
     textAlign: 'center',
+    fontFamily: 'FamiljenGrotesk-Bold',
   },
 });
