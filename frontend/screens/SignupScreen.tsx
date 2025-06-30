@@ -133,11 +133,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: 20,
     paddingTop: 98, // match design top offset for logo
+    position: 'relative', // Ensure absolute children are positioned relative to this
   },
   logo: {
-    width: 191,
-    height: 95,
-    marginLeft: 101,
+    width: 191.42,
+    height: 94.75,
+    position: 'absolute',
+    top: 98,
+    left: 101,
     marginBottom: 10,
   },
   title: {

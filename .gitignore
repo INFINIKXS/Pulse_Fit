@@ -47,4 +47,6 @@ files/
 gemini.md
 # Task files
 # tasks.json
-# tasks/ 
+# tasks/
+
+# Ignore frontend assets
