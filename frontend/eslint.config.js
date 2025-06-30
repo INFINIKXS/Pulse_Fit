@@ -11,14 +11,15 @@ export default [
     plugins: {
       react: reactPlugin,
       local,
-      // Add typescript-eslint plugin for ESM compatibility
       "@typescript-eslint": tseslint.plugin
     },
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: "module",
+      parser: tseslint.parser,
       parserOptions: {
-        ecmaFeatures: { jsx: true }
+        ecmaFeatures: { jsx: true },
+        project: "./tsconfig.json"
       }
     },
     rules: {

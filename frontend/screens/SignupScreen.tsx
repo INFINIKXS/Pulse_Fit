@@ -34,14 +34,14 @@ export default function SignupScreen({ navigation }: Props) {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#000"
+            placeholderTextColor="rgba(0,0,0,0.5)"
             value={email}
             onChangeText={setEmail}
           />
           <TextInput
             style={styles.inputPassword}
             placeholder="Create Password"
-            placeholderTextColor="#000"
+            placeholderTextColor="rgba(0,0,0,0.5)"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -49,7 +49,7 @@ export default function SignupScreen({ navigation }: Props) {
           <TextInput
             style={styles.inputConfirm}
             placeholder="Confirm Password"
-            placeholderTextColor="#000"
+            placeholderTextColor="rgba(0,0,0,0.5)"
             secureTextEntry
             value={confirmPassword}
             onChangeText={setConfirmPassword}
@@ -86,9 +86,12 @@ export default function SignupScreen({ navigation }: Props) {
               <Text style={styles.appleText}>Apple</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.loginText}>
+          {/* Footer Link */}
+          <Text style={[styles.footerText, {left: 54}]}>
             Already have an account?{' '}
-            <Text style={styles.loginLink} onPress={() => navigation.navigate('Login')}>Log In</Text>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Login')} style={{padding: 0, margin: 0}}>
+              <Text style={[styles.footerLink, {padding: 0, margin: 7, height: 30, width: 60, left: -8}]}>Log In</Text>
+            </TouchableOpacity>
           </Text>
           <Text
             style={{
@@ -111,7 +114,7 @@ export default function SignupScreen({ navigation }: Props) {
             }}
           >
             {'Pulse'}
-            <Text style={{ color: '#00D100', fontFamily: 'Kadwa-Bold', fontWeight: '500' }}>{'FIT'}</Text>
+            <Text style={{ color: '#008000', fontFamily: 'Kadwa-Bold', fontWeight: '500' }}>{'FIT'}</Text>
           </Text>
         </View>
       </View>
@@ -231,7 +234,7 @@ const styles = StyleSheet.create({
   signupButton: {
     width: 325,
     height: 58,
-    backgroundColor: '#00B300', // Updated to requested green
+    backgroundColor: '#00B300', // Darker green
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -309,9 +312,10 @@ const styles = StyleSheet.create({
     tintColor: undefined, // Google icon should keep its color
   },
   appleIcon: {
-    width: 40, // bigger than google icon
-    height: 40,
-    marginRight: 5,
+    width: 45, // bigger than google icon
+    height: 45,
+    marginRight: 0,
+    right:11
   },
   googleText: {
     fontWeight: '600',
@@ -328,6 +332,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
     color: '#000',
     fontFamily: 'FamiljenGrotesk-Regular',
+    right: 11
   },
   loginText: {
     fontWeight: '400',
@@ -349,13 +354,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     fontFamily: 'FamiljenGrotesk-Regular',
   },
-  loginLink: {
-    fontWeight: '500',
+  footerText: {
+    fontWeight: '400',
     fontSize: 15,
     lineHeight: 15,
     letterSpacing: 0,
-    color: '#00D100',
+    color: '#fff',
     textAlign: 'center',
+    width: 307,
+    height: 20,
+    position: 'absolute',
+    top: 678,
+    left: 46,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: 'FamiljenGrotesk-Regular',
+  },
+  footerLink: {
+    fontWeight: '500',
+    color: '#00FF00',
     fontFamily: 'FamiljenGrotesk-Bold',
+  },
+  footerLinkPressed: {
+    opacity: 0.5,
   },
 });
