@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { Text, View, TouchableOpacity, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import AuthScreenContainer from '../components/AuthScreenContainer';
+import PulseFit_Logo from '../components/PulseFit_Logo';
+import AuthInputField from '../components/AuthInputField';
+import PrimaryButton from '../components/PrimaryButton';
 
-// Assume these assets are in the correct path
-import bgImage from '../assets/images/dumbbells-bg.jpg';
-import logo from '../assets/images/pulsefit-logo.png';
-import googleIcon from '../assets/images/google-icon.png';
-import appleIcon from '../assets/images/apple-icon.png';
+
 
 // Define the navigation type for better type safety
 // Adjust RootStackParamList as per your navigation setup
@@ -17,310 +17,122 @@ type RootStackParamList = {
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
-
 export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Add timer-based handlers for visible dim effect
+  // Handler for reset password (placeholder)
   const handleResetPress = () => {
-    setTimeout(() => {
-      // TODO: Add reset password navigation
-    }, 0);
-  };
-  const handleSignupPress = () => {
-    setTimeout(() => {
-      navigation.navigate('Signup');
-    }, 0);
+    // TODO: Add reset password navigation
   };
 
   return (
-    <View style={styles.container}>
+    <AuthScreenContainer>
       <StatusBar style="light" translucent backgroundColor="transparent" />
-      <View style={styles.roundedClip}>
-        <Image source={bgImage} style={styles.backgroundImage} />
-        <View style={styles.overlay} />
-        <View style={styles.content}>
-          {/* Logo */}
-          <Image source={logo} style={styles.logo} resizeMode="contain" />
-
-          {/* Title */}
-          <Text style={styles.title}>Log In</Text>
-
-          {/* Email Label */}
-          <Text style={styles.labelEmail}>Email</Text>
-          <TextInput
-            style={[styles.input, { top: 238, fontFamily: 'FamiljenGrotesk-Bold', fontWeight: '500', fontSize: 15 }]}
-            placeholder="Email"
-            placeholderTextColor="rgba(0,0,0,0.5)"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          {/* Password Label */}
-          <Text style={styles.labelPassword}>Password</Text>
-          <TextInput
-            style={[styles.input, { top: 328, fontFamily: 'FamiljenGrotesk-Bold', fontWeight: '500', fontSize: 15 }]}
-            placeholder="Password"
-            placeholderTextColor="rgba(0,0,0,0.5)"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            autoCapitalize="none"
-          />
-
-          {/* Login Button */}
-          <TouchableOpacity style={styles.loginButton}>
-            <Text style={styles.loginButtonText}>Log In</Text>
-          </TouchableOpacity>
-
-          {/* Divider */}
-          <Text style={styles.orText}>Or</Text>
-          <View style={styles.dividerLineLeft} />
-          <View style={styles.dividerLineRight} />
-
-          {/* Social Buttons */}
-          <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialButton}>
-              <Image source={googleIcon} style={styles.socialIcon} />
-              <Text style={styles.socialButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.socialButton, { marginTop: 16 }]}> 
-              <Image source={appleIcon} style={styles.appleIcon} />
-              <Text style={styles.socialButtonText}>Continue with Apple</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Footer Links */}
-          <Text style={[styles.footerText, { top: 649, left:95 }]}>Forgot password?{' '}
-            <TouchableOpacity activeOpacity={0.5} onPress={handleResetPress} style={{padding: 0, margin: 0}}>
-              <Text style={[styles.footerLink, {padding: 0, margin: 0, height: 30, width: 60, top: 17, fontWeight: '500', fontFamily: 'FamiljenGrotesk-Bold'}]}>Reset</Text>
-            </TouchableOpacity>
-          </Text>
-          <Text style={[styles.footerText, { top: 690, left:66 }]}>Don't have an account?{' '}
-            <TouchableOpacity activeOpacity={0.5} onPress={handleSignupPress} style={{padding: 0, margin: 0}}>
-              <Text style={[styles.footerLink, {padding: 0, margin: 0, height: 30, width: 60, top: 17, fontWeight: '500', fontFamily: 'FamiljenGrotesk-Bold'}]}>Sign Up</Text>
-            </TouchableOpacity>
-          </Text>
-
-          {/* Brand Text */}
-          <Text
-            style={{
-              position: 'absolute',
-              top: 90,
-              left: 95,
-              width: 200,
-              height: 78,
-              fontFamily: 'Kadwa-Bold',
-              fontWeight: '500',
-              fontSize: 27.47,
-              lineHeight: 31.47,
-              letterSpacing: 1.52,
-              color: '#fff',
-              textAlign: 'center',
-              borderRadius: 6,
-              paddingHorizontal: 8,
-              paddingVertical: 1,
-              overflow: 'hidden',
-            }}
-          >
-            {'Pulse'}
-            <Text style={{ color: '#008000', fontFamily: 'Kadwa-Bold', fontWeight: '500' }}>{'FIT'}</Text>
-          </Text>
+      <View style={{ flex: 1, width: '100%', paddingHorizontal: 20, position: 'relative' }}>
+        <View style={{ position: 'absolute', top: 79 }}>
+          <PulseFit_Logo />
         </View>
+        {/* Title */}
+        <Text style={{
+          position: 'absolute',
+          top: 164,
+          left: 22, // unchanged (title is excluded)
+          width: 150,
+          height: 36,
+          color: '#fff',
+          fontSize: 25,
+          fontWeight: '500',
+          fontFamily: 'FamiljenGrotesk-Bold',
+          alignSelf: 'flex-start',
+          lineHeight: 25,
+          letterSpacing: 0,
+          textAlign: 'left',
+        }}>
+          Log In
+        </Text>
+        {/* Email Label */}
+        <Text style={{
+          position: 'absolute',
+          top: 210,
+          left: 19,
+          color: '#FFFFFF',
+          fontSize: 16,
+          fontWeight: '500',
+          fontFamily: 'FamiljenGrotesk-Bold',
+        }}>
+          Email
+        </Text>
+        <AuthInputField
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          style={{ position: 'absolute', top: 238, left: 19, right: 29, height: 53, borderRadius: 20, paddingHorizontal: 20 }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        {/* Password Label */}
+        <Text style={{
+          position: 'absolute',
+          top: 302,
+          left: 19,
+          color: '#FFFFFF',
+          fontSize: 16,
+          fontWeight: '500',
+          fontFamily: 'FamiljenGrotesk-Bold',
+        }}>
+          Password
+        </Text>
+        <AuthInputField
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          style={{ position: 'absolute', top: 328, left: 19, right: 29, height: 56, borderRadius: 20, paddingHorizontal: 20 }}
+          autoCapitalize="none"
+        />
+        <PrimaryButton
+          title="Log In"
+          onPress={() => {}}
+          style={{ position: 'absolute', top: 400, left: 19, right: 29, height: 56, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}
+        />
+        {/* Divider */}
+        <Text style={{
+          position: 'absolute',
+          top: 480,
+          left: 170,
+          color: '#fff',
+          fontFamily: 'FamiljenGrotesk-Bold',
+          fontWeight: '500',
+          fontSize: 16,
+        }}>Or</Text>
+        <View style={{ position: 'absolute', top: 492, left: 19, width: 140, height: 1.5, backgroundColor: '#FFFFFF', opacity: 0.7, borderRadius: 1 }} />
+        <View style={{ position: 'absolute', top: 492, right: 49, width: 140, height: 1.5, backgroundColor: '#FFFFFF', opacity: 0.7, borderRadius: 1 }} />
+        <View style={{ position: 'absolute', top: 524, left: 19, width: 353, height: 128, alignItems: 'center', justifyContent: 'flex-start', flexDirection: 'column' }}>
+          <TouchableOpacity style={{ right: 10, width: 323, height: 56, borderRadius: 20, backgroundColor: 'rgba(255, 255, 255, 0.35)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 0, paddingLeft: 18 }}>
+            <Image source={require('../assets/images/google-icon.png')} style={{ width: 30, height: 30, marginRight: 105, marginLeft: 0 }} />
+            <Text style={{ right: 88,color: '#000000', fontSize: 14, fontWeight: '600', fontFamily: 'FamiljenGrotesk-Regular' }}>Continue with Google</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ right: 10, width: 323, height: 56, borderRadius: 20, backgroundColor: 'rgba(255, 255, 255, 0.35)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16, marginBottom: 0, paddingLeft: 8 }}>
+            <Image source={require('../assets/images/apple-icon.png')} style={{ width: 36, height: 36, marginRight: 88, marginLeft: 1 }} />
+            <Text style={{right:78, color: '#000000', fontSize: 14, fontWeight: '600', fontFamily: 'FamiljenGrotesk-Regular' }}>Continue with Apple</Text>
+          </TouchableOpacity>
+        </View>
+        {/* Footer links - pixel-perfect, centered, flex row */}
+        <View style={{ position: 'absolute', top: 665, left: 0, right: 0, width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', zIndex: 10 }}>
+          <Text style={{ fontWeight: '100', fontSize: 14, color: '#FFFFFF', fontFamily: 'FamiljenGrotesk-Regular', textAlign: 'center', padding: 0, margin: 0 }}>Forgot password? </Text>
+          <TouchableOpacity activeOpacity={0.5} onPress={handleResetPress} style={{ padding: 0, margin: 0, height: 30, justifyContent: 'center' }}>
+            <Text style={{ fontWeight: '500', color: '#00FF00', fontFamily: 'FamiljenGrotesk-Bold', fontSize: 14, padding: 0, margin: 0 }}>Reset</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ position: 'absolute', top: 705, left: 0, right: 0, width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', zIndex: 10 }}>
+          <Text style={{ fontWeight: '100', fontSize: 14, color: '#FFFFFF', fontFamily: 'FamiljenGrotesk-Regular', textAlign: 'center', padding: 0, margin: 0 }}>Don't have an account? </Text>
+          <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Signup')} style={{ padding: 0, margin: 0, height: 30, justifyContent: 'center' }}>
+            <Text style={{ fontWeight: '500', color: '#00FF00', fontFamily: 'FamiljenGrotesk-Bold', fontSize: 14, padding: 0, margin: 0 }}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+        {/* PulseFit_Logo now handles the logo and text */}
       </View>
-    </View>
+    </AuthScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-  },
-  roundedClip: {
-    flex: 1,
-    borderRadius: 40,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  content: {
-    flex: 1,
-    width: '100%',
-    paddingHorizontal: 24,
-  },
-  logo: {
-    width: 191.42,
-    height: 94.75,
-    position: 'absolute',
-    top: 62,
-    left: 22,
-    marginBottom: 10,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 25,
-    fontWeight: '500', // Make title bold
-    fontFamily: 'FamiljenGrotesk-Bold', // Use bold variant
-    alignSelf: 'flex-start',
-    position: 'absolute',
-    top: 164,
-    left: 22,
-    width: 150,
-    height: 36,
-    lineHeight: 25,
-    letterSpacing: 0,
-  },
-  labelEmail: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500',
-    fontFamily: 'FamiljenGrotesk-Bold',
-    position: 'absolute',
-    top: 210,
-    left: 24,
-  },
-  labelPassword: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500',
-    fontFamily: 'FamiljenGrotesk-Bold',
-    position: 'absolute',
-    top: 302,
-    left: 24,
-  },
-  input: {
-    width: '100%',
-    height: 53,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    color: '#FFFFFF',
-    fontSize: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)', // Match social button background
-    position: 'absolute',
-    alignSelf: 'center',
-    fontFamily: 'FamiljenGrotesk-Regular',
-    // Remove fixed top here, control with style prop in component
-  },
-  inputPassword: {
-    width: '100%',
-    height: 56,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    color: '#FFFFFF',
-    fontSize: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)', // Match social button background
-    position: 'absolute',
-    alignSelf: 'center',
-    fontFamily: 'FamiljenGrotesk-Regular',
-    // Remove fixed top here, control with style prop in component
-  },
-  loginButton: {
-    width: '100%',
-    height: 56,
-    backgroundColor: '#00B300', // Darker green
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    top: 400,
-    alignSelf: 'center',
-  },
-  loginButtonText: {
-    color: '#000000',
-    fontWeight: '500',
-    fontSize: 18,
-    fontFamily: 'FamiljenGrotesk-Bold',
-  },
-  orText: {
-    color: '#fff',
-    position: 'absolute',
-    top: 480,
-    alignSelf: 'center',
-    fontFamily: 'FamiljenGrotesk-Bold',
-    fontWeight: '500',
-    fontSize: 16,
-  },
-  dividerLineLeft: {
-    position: 'absolute',
-    top: 492,
-    left:25,
-    width: '45%',
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  },
-  dividerLineRight: {
-    position: 'absolute',
-    top: 492,
-    right: 25,
-    width: '45%',
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  },
-  socialRow: {
-    position: 'absolute',
-    top: 524,
-    width: '100%',
-    alignSelf: 'center',
-    alignItems: 'center',
-  },
-  socialButton: {
-    width: '100%',
-    height: 56,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 0,
-    alignSelf: 'center',
-  },
-  socialIcon: {
-    width: 30,
-    height: 30,
-    marginRight: 12,
-    right: 25, // Adjusted to match the new layout
-  },
-  appleIcon: {
-    width: 45, // bigger than google icon
-    height: 45,
-    marginRight: 5,
-    right: 28,
-  },
-  socialButtonText: {
-    color: '#000000', // Black text
-    fontSize: 14,
-    fontWeight: '600',
-    fontFamily: 'FamiljenGrotesk-Regular',
-    right: 25,
-  },
-  footerText: {
-    fontWeight: '100',
-    fontSize: 14,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    position: 'absolute',
-    top: 730,
-    alignSelf: 'center',
-    fontFamily: 'FamiljenGrotesk-Regular',
-  },
-  footerLink: {
-    fontWeight: '500',
-    color: '#00FF00',
-    fontFamily: 'FamiljenGrotesk-Bikd',
-  },
-  footerLinkPressed: {
-    opacity: 0.5,
-  },
-});

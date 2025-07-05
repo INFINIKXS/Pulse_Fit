@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import AuthInputField from '../components/AuthInputField';
+import PrimaryButton from '../components/PrimaryButton';
+import SocialLoginRow from '../components/SocialLoginRow';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import bgImage from '../assets/images/auth-bg.jpg';
-import logo from '../assets/images/pulsefit-logo.png';
-import googleIcon from '../assets/images/google-icon.png';
-import appleIcon from '../assets/images/apple-icon.png';
+// import logo from '../assets/images/pulsefit-logo.png';
+import PulseFit_Logo from '../components/PulseFit_Logo';
+// import googleIcon from '../assets/images/google-icon.png';
+// import appleIcon from '../assets/images/apple-icon.png';
 
 // Define the navigation type for better type safety
 // Adjust RootStackParamList as per your navigation setup
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
+  Onboarding1: undefined;
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
@@ -29,40 +34,43 @@ export default function SignupScreen({ navigation }: Props) {
         <Image source={bgImage} style={styles.backgroundImage} />
         <View style={styles.overlay} />
         <View style={styles.content}>
-          <Image source={logo} style={styles.logo} resizeMode="contain" />
+          <PulseFit_Logo />
           <Text style={styles.title}>Sign Up</Text>
-          <TextInput
+          <AuthInputField
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="rgba(0,0,0,0.5)"
             value={email}
             onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            returnKeyType="next"
           />
-          <TextInput
-            style={styles.inputPassword}
+          <AuthInputField
             placeholder="Create Password"
-            placeholderTextColor="rgba(0,0,0,0.5)"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
+            style={styles.inputPassword}
           />
-          <TextInput
-            style={styles.inputConfirm}
+          <AuthInputField
             placeholder="Confirm Password"
-            placeholderTextColor="rgba(0,0,0,0.5)"
             secureTextEntry
             value={confirmPassword}
             onChangeText={setConfirmPassword}
+            style={styles.inputConfirm}
           />
-          <TouchableOpacity style={styles.signupButton}>
-            <Text style={styles.signupButtonText}>Sign Up</Text>
-          </TouchableOpacity>
+          <PrimaryButton
+            title="Sign Up"
+            style={styles.signupButton}
+            // textStyle={styles.signupButtonText} // Removed: style does not exist, see TS error
+            onPress={() => navigation.navigate('Onboarding1')}
+          />
           <Text style={styles.orText}>Or continue with</Text>
           <View style={{
             position: 'absolute',
             top: 562,
-            left: 20,
-            width: 105,
+            left: 39,
+            width: 85,
             borderBottomWidth: 1,
             borderBottomColor: '#fff',
             alignSelf: 'center',
@@ -70,22 +78,17 @@ export default function SignupScreen({ navigation }: Props) {
           <View style={{
             position: 'absolute',
             top: 562,
-            left: 268,
-            width: 105,
+            left: 270,
+            width: 85,
             borderBottomWidth: 1,
             borderBottomColor: '#fff',
             alignSelf: 'center',
           }} />
-          <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.googleButton}>
-              <Image source={googleIcon} style={styles.socialIcon} />
-              <Text style={styles.googleText}>Google</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.appleButton}>
-              <Image source={appleIcon} style={styles.appleIcon} />
-              <Text style={styles.appleText}>Apple</Text>
-            </TouchableOpacity>
-          </View>
+          <SocialLoginRow
+            style={styles.socialRow}
+            onGooglePress={() => {}}
+            onApplePress={() => {}}
+          />
           {/* Footer Link */}
           <Text style={[styles.footerText, {left: 54}]}>
             Already have an account?{' '}
@@ -93,29 +96,7 @@ export default function SignupScreen({ navigation }: Props) {
               <Text style={[styles.footerLink, {padding: 0, margin: 7, height: 30, width: 60, left: -8}]}>Log In</Text>
             </TouchableOpacity>
           </Text>
-          <Text
-            style={{
-              position: 'absolute',
-              top: 125.86,
-              left: 125.42,
-              width: 200,
-              height: 78,
-              fontFamily: 'Kadwa-Bold', // Use Kadwa Regular
-              fontWeight: '500',
-              fontSize: 27.47,
-              lineHeight: 31.47,
-              letterSpacing: 1.52,
-              color: '#fff',
-              textAlign: 'center',
-              borderRadius: 6,
-              paddingHorizontal: 8,
-              paddingVertical: 1,
-              overflow: 'hidden',
-            }}
-          >
-            {'Pulse'}
-            <Text style={{ color: '#008000', fontFamily: 'Kadwa-Bold', fontWeight: '500' }}>{'FIT'}</Text>
-          </Text>
+          {/* PulseFit_Logo now handles the logo and text */}
         </View>
       </View>
     </View>
@@ -163,15 +144,7 @@ const styles = StyleSheet.create({
     paddingTop: 98, // match design top offset for logo
     position: 'relative', // Ensure absolute children are positioned relative to this
   },
-  logo: {
-    width: 191.42,
-    height: 94.75,
-    position: 'absolute',
-    top: 98,
-    left: 51,
-    marginBottom: 10,
-  
-  },
+
   title: {
     color: '#fff',
     fontSize: 25,
@@ -187,68 +160,24 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
   },
   input: {
-    width: 325,
-    height: 53,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    color: '#000000',
-    fontSize: 14,
-    backgroundColor: 'rgba(255,255,255,0.43)', // set to 0.43 opacity
     position: 'absolute',
     top: 241,
-    left: 33,
-    opacity: 1,
-    marginBottom: 15,
-    fontFamily: 'FamiljenGrotesk-Regular',
+    left: 33,  
   },
   inputPassword: {
-    width: 325,
-    height: 53,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    color: '#000000',
-    fontSize: 14,
-    backgroundColor: 'rgba(255,255,255,0.43)', // set to 0.43 opacity
     position: 'absolute',
     top: 308,
     left: 33,
-    opacity: 1,
-    marginBottom: 15,
-    fontFamily: 'FamiljenGrotesk-Regular',
   },
   inputConfirm: {
-    width: 325,
-    height: 53,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    color: '#000000',
-    fontSize: 14,
-    backgroundColor: 'rgba(255,255,255,0.43)', // set to 0.43 opacity
     position: 'absolute',
     top: 377,
     left: 33,
-    opacity: 1,
-    marginBottom: 15,
-    fontFamily: 'FamiljenGrotesk-Regular',
   },
   signupButton: {
-    width: 325,
-    height: 58,
-    backgroundColor: '#00B300', // Darker green
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
     position: 'absolute',
     top: 464,
     left: 33,
-    marginTop: 0,
-    marginBottom: 15,
-  },
-  signupButtonText: {
-    color: '#000', // Use pure black for maximum contrast
-    fontWeight: '500',
-    fontSize: 18,
-    fontFamily: 'FamiljenGrotesk-Bold', // Use bold variant
   },
   orText: {
     width: 200,
@@ -265,74 +194,9 @@ const styles = StyleSheet.create({
     fontFamily: 'FamiljenGrotesk-Bold',
   },
   socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
     position: 'absolute',
     top: 600,
     left: 20,
-    width: 353,
-    height: 52,
-    zIndex: 2,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eee',
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    marginHorizontal: 8,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 135,
-    height: 52,
-    borderRadius: 23,
-    backgroundColor: 'rgba(255,255,255,0.4)', // match email input box
-    opacity: 1,
-    marginRight: 20,
-  },
-  appleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 135,
-    height: 52,
-    borderRadius: 23,
-    backgroundColor: 'rgba(255,255,255,0.4)', // match email input box
-    opacity: 1,
-  },
-  socialIcon: {
-    width: 30,
-    height: 30,
-    marginRight: 10,
-    tintColor: undefined, // Google icon should keep its color
-  },
-  appleIcon: {
-    width: 45, // bigger than google icon
-    height: 45,
-    marginRight: 0,
-    right:11
-  },
-  googleText: {
-    fontWeight: '600',
-    fontSize: 15,
-    lineHeight: 19,
-    letterSpacing: 0,
-    color: '#000',
-    fontFamily: 'FamiljenGrotesk-Regular',
-  },
-  appleText: {
-    fontWeight: '600',
-    fontSize: 15,
-    lineHeight: 19,
-    letterSpacing: 0,
-    color: '#000',
-    fontFamily: 'FamiljenGrotesk-Regular',
-    right: 11
   },
   loginText: {
     fontWeight: '400',
