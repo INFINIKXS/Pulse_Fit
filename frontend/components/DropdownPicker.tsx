@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
   SafeAreaView,
+  TextInput,
 } from 'react-native';
 
 import chevronDownIcon from '../assets/images/chevron-down-icon.png';
@@ -17,8 +18,9 @@ interface DropdownPickerProps {
   data: string[];
   selectedValue: string | null;
   onSelect: (value: string) => void;
-  placeholder?: string;
   style?: object;
+  dropdownTextStyle?: object;
+  dropdownStyle?: object;
 }
 
 export default function DropdownPicker({
@@ -26,25 +28,49 @@ export default function DropdownPicker({
   data,
   selectedValue,
   onSelect,
-  placeholder = 'Select...',
   style = {},
+  dropdownTextStyle = {},
+  dropdownStyle = {},
 }: DropdownPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [customValue, setCustomValue] = useState('');
+  const [showCustomModal, setShowCustomModal] = useState(false);
 
   const handleSelect = (item: string) => {
-    onSelect(item);
-    setIsOpen(false);
+    if (item === 'Others') {
+      setShowCustomModal(true);
+      setIsOpen(false);
+    } else {
+      onSelect(item);
+      setIsOpen(false);
+    }
+  };
+
+  const handleCustomSave = () => {
+    if (customValue.trim()) {
+      onSelect(customValue);
+      setShowCustomModal(false);
+      setCustomValue('');
+    }
   };
 
   return (
     <View style={[styles.pickerContainer, style]}>
       <Text style={styles.label}>{label}</Text>
-      <TouchableOpacity style={styles.pickerButton} onPress={() => setIsOpen(true)}>
-        <Text style={selectedValue ? styles.pickerButtonText : styles.placeholderText}>
-          {selectedValue || placeholder}
+      <View style={styles.pickerButton}>
+        <Text style={selectedValue ? [styles.pickerButtonText, dropdownTextStyle] : [styles.pickerButtonText, dropdownTextStyle, {opacity: 0.5}] }>
+          {selectedValue || ''}
         </Text>
-        <Image source={chevronDownIcon} style={styles.pickerIcon} />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={{ position: 'relative', width: 46, height: 46, alignItems: 'center', justifyContent: 'center', marginRight: -8, marginLeft: 8 }}
+          onPress={() => setIsOpen(true)}
+          activeOpacity={0.7}
+        >
+          <View style={{ position: 'absolute', width: 32, height: 32, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.35)', zIndex: 1 }} />
+          <Image source={chevronDownIcon} style={[styles.pickerIcon, { zIndex: 2 }]} />
+        </TouchableOpacity>
+      </View>
+
 
       <Modal
         visible={isOpen}
@@ -54,13 +80,13 @@ export default function DropdownPicker({
       >
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsOpen(false)}>
           <SafeAreaView style={styles.modalContentWrapper}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, dropdownStyle]}>
               <FlatList
                 data={data}
                 keyExtractor={(item) => item}
                 renderItem={({ item }) => (
                   <TouchableOpacity style={styles.modalItem} onPress={() => handleSelect(item)}>
-                    <Text style={styles.modalItemText}>{item}</Text>
+                    <Text style={[styles.modalItemText, dropdownTextStyle]}>{item}</Text>
                   </TouchableOpacity>
                 )}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -68,6 +94,52 @@ export default function DropdownPicker({
             </View>
           </SafeAreaView>
         </TouchableOpacity>
+      </Modal>
+
+      {/* Custom value modal for 'Others' */}
+      <Modal
+        visible={showCustomModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCustomModal(false)}
+      >
+        <View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.5)'}}>
+          <View style={{backgroundColor:'#222',padding:24,borderRadius:20,width:280, alignItems:'center'}}>
+            <Text style={{color:'#fff',fontSize:16,marginBottom:12}}>
+              {label === 'Height' ? 'Enter your height (cm)' : label === 'Weight' ? 'Enter your weight (kg)' : 'Enter value'}
+            </Text>
+            <View style={{width:'100%'}}>
+              <TextInput
+                style={{
+                  backgroundColor: '#333',
+                  color: '#FFFFFF',
+                  borderRadius: 20,
+                  padding: 10,
+                  marginBottom: 16,
+                  fontSize: 15,
+                  width: '100%',
+                  alignSelf: 'stretch',
+                  fontFamily: 'FamiljenGrotesk-Regular',
+                  fontWeight: '500',
+                }}
+                placeholder={label === 'Height' ? 'e.g. 170' : label === 'Weight' ? 'e.g. 65' : 'Enter value'}
+                placeholderTextColor="#aaa"
+                value={customValue}
+                onChangeText={setCustomValue}
+                keyboardType={label === 'Height' || label === 'Weight' ? 'number-pad' : 'default'}
+                autoFocus
+              />
+            </View>
+            <View style={{flexDirection:'row',justifyContent:'flex-end',width:'100%'}}>
+              <TouchableOpacity onPress={()=>setShowCustomModal(false)} style={{marginRight:16}}>
+                <Text style={{color:'#aaa',fontSize:16}}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCustomSave}>
+                <Text style={{color:'#00FF00',fontSize:16}}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -83,32 +155,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     fontFamily: 'FamiljenGrotesk-Regular',
-    marginBottom: 8,
+    marginBottom: 18,
   },
   pickerButton: {
-    width: '100%',
-    height: 56,
-    borderRadius: 14,
+    width: 335,
+    height: 53,
+    borderRadius: 20,
     paddingHorizontal: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    bottom:15,
+
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    fontFamily: 'FamiljenGrotesk-Bold',
+    fontWeight: '500',
+    opacity: 1,
+    marginBottom: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   pickerButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'FamiljenGrotesk-Regular',
+    fontWeight: '500',
   },
-  placeholderText: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 16,
-    fontFamily: 'FamiljenGrotesk-Regular',
-  },
+
   pickerIcon: {
-    width: 20,
-    height: 20,
-    tintColor: 'rgba(255, 255, 255, 0.7)',
+    width: 27,
+    height: 27,
+    tintColor: 'rgb(2, 0, 0)',
   },
   modalOverlay: {
     flex: 1,
@@ -131,7 +206,9 @@ const styles = StyleSheet.create({
   },
   modalItemText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
+    fontFamily: 'FamiljenGrotesk-Regular',
+    fontWeight: '500',
     textAlign: 'center',
   },
   separator: {

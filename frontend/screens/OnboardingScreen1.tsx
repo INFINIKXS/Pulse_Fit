@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Modal, Pressable } from 'react-native';
+import { Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import AuthInputField from '../components/AuthInputField';
 import { StatusBar } from 'expo-status-bar';
 
 // Assume these assets are in the correct path
-import bgImage from '../assets/images/dumbbells-bg.jpg'; // Use the working background image
+import bgImage from '../assets/images/onboardingScreen1.jpg';
 import userPlaceholder from '../assets/images/user-placeholder-icon.png';
 import cameraIcon from '../assets/images/camera-icon.png';
 
 import doubleArrowIcon from '../assets/images/double-arrow-right-icon.png';
+import AnimatedTripleArrow, { tripleArrowPulse } from '../components/AnimatedTripleArrow';
 import DropdownPicker from '../components/DropdownPicker';
 
 export default function BasicInfoScreen() {
@@ -16,11 +19,9 @@ export default function BasicInfoScreen() {
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const [height, setHeight] = useState<string | null>(null);
   const [weight, setWeight] = useState<string | null>(null);
-  const [customHeight, setCustomHeight] = useState<string>('');
-  const [customWeight, setCustomWeight] = useState<string>('');
+  // Removed customHeight and customWeight, now handled in DropdownPicker
   // Removed unused showHeightInput, setShowHeightInput, showWeightInput, setShowWeightInput
-  const [heightModalVisible, setHeightModalVisible] = useState(false);
-  const [weightModalVisible, setWeightModalVisible] = useState(false);
+  // Removed modal state, now handled in DropdownPicker
 
   const heightOptions = [
     '150–152 cm',
@@ -30,41 +31,21 @@ export default function BasicInfoScreen() {
     'Others'
   ];
   const weightOptions = [
-    '150–152 cm',
-    '153–155 cm',
-    '156–158 cm',
-    '159–160 cm',
+    '40–44 kg',
+    '45–49 kg',
+    '50–54 kg',
+    '55–59 kg',
+    '60–64 kg',
+    '65–69 kg',
+    '70–74 kg',
+    '75–79 kg',
+    '80–84 kg',
+    '85–89 kg',
+    '90+ kg',
     'Others'
   ];
 
-  const handleHeightSelect = (value: string) => {
-    if (value === 'Others') {
-      setHeightModalVisible(true);
-    } else {
-      setHeight(value);
-      setCustomHeight('');
-    }
-  };
-  const handleWeightSelect = (value: string) => {
-    if (value === 'Others') {
-      setWeightModalVisible(true);
-    } else {
-      setWeight(value);
-      setCustomWeight('');
-    }
-  };
-  const handleHeightModalSave = () => {
-    if (customHeight.trim()) {
-      setHeight(customHeight + ' cm');
-      setHeightModalVisible(false);
-    }
-  };
-  const handleWeightModalSave = () => {
-    if (customWeight.trim()) {
-      setWeight(customWeight + ' kg');
-      setWeightModalVisible(false);
-    }
-  };
+  // Removed modal and handler logic, now handled in DropdownPicker
 
   return (
     <View style={styles.container}>
@@ -76,7 +57,7 @@ export default function BasicInfoScreen() {
 
           {/* 1. Header */}
           <Text style={styles.title}>Basic Info</Text>
-          <Text style={styles.subtitle}>
+          <Text style={styles.basicInfoText}>
             Briefly tell us about yourself as you begin fitness journey.
             Your information is safe and you can always change it later.
           </Text>
@@ -90,17 +71,18 @@ export default function BasicInfoScreen() {
           </TouchableOpacity>
 
           {/* 3. Form */}
+
           <Text style={styles.labelName}>Name</Text>
-          <TextInput
-            style={[styles.input, { top: 310 }]}
+          <AuthInputField
+            style={[ {top: 265 }]}
             placeholder=""
             value={name}
             onChangeText={setName}
           />
 
           <Text style={styles.labelAge}>Age</Text>
-          <TextInput
-            style={[styles.input, { top: 390 }]}
+          <AuthInputField
+            style={[{top: 295 }]}
             placeholder=""
             value={age}
             onChangeText={setAge}
@@ -109,116 +91,96 @@ export default function BasicInfoScreen() {
 
           <Text style={styles.labelGender}>Gender:</Text>
           <View style={styles.genderRow}>
-            <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setGender('male')}>
-              <View style={styles.radioButton}>
-                {gender === 'male' && <View style={styles.radioButtonSelected} />}
-              </View>
-              <Text style={styles.radioLabel}>Male</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.radioButtonContainer, { marginLeft: 40 }]} onPress={() => setGender('female')}>
-              <View style={styles.radioButton}>
-                {gender === 'female' && <View style={styles.radioButtonSelected} />}
-              </View>
-              <Text style={styles.radioLabel}>Female</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+              <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setGender('male')}>
+                <View style={styles.radioButton}>
+                  {gender === 'male' && <View style={styles.radioButtonSelected} />}
+                </View>
+                <Text style={styles.radioLabel}>Male</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.radioButtonContainer, { marginTop: 10 }]} onPress={() => setGender('female')}>
+                <View style={styles.radioButton}>
+                  {gender === 'female' && <View style={styles.radioButtonSelected} />}
+                </View>
+                <Text style={styles.radioLabel}>Female</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           
           {/* Height and Weight pickers replaced with DropdownPicker */}
-          <DropdownPicker
-            label="Height"
-            data={heightOptions}
-            selectedValue={height}
-            onSelect={handleHeightSelect}
-            placeholder="Select height"
-            style={{
-              width: 353,
-              height: 52,
-              position: 'absolute',
-              top: 511,
-              left: 20,
-              borderRadius: 20,
-              opacity: 0.4,
-            }}
-          />
-          <Modal
-            visible={heightModalVisible}
-            transparent
-            animationType="fade"
-            onRequestClose={() => setHeightModalVisible(false)}
-          >
-            <View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.5)'}}>
-              <View style={{backgroundColor:'#222',padding:24,borderRadius:16,width:280}}>
-                <Text style={{color:'#fff',fontSize:16,marginBottom:12}}>Enter your height (cm)</Text>
-                <TextInput
-                  style={{backgroundColor:'#333',color:'#fff',borderRadius:8,padding:10,marginBottom:16,fontSize:16}}
-                  placeholder="e.g. 170"
-                  placeholderTextColor="#aaa"
-                  value={customHeight}
-                  onChangeText={setCustomHeight}
-                  keyboardType="number-pad"
-                  autoFocus
-                />
-                <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
-                  <Pressable onPress={()=>setHeightModalVisible(false)} style={{marginRight:16}}>
-                    <Text style={{color:'#aaa',fontSize:16}}>Cancel</Text>
-                  </Pressable>
-                  <Pressable onPress={handleHeightModalSave}>
-                    <Text style={{color:'#00FF00',fontSize:16}}>Save</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          </Modal>
-          <DropdownPicker
-            label="Weight"
-            data={weightOptions}
-            selectedValue={weight}
-            onSelect={handleWeightSelect}
-            placeholder="Select weight"
-            style={{
-              width: 353,
-              height: 52,
-              position: 'absolute',
-              top: 604,
-              left: 20,
-              borderRadius: 20,
-              opacity: 0.4,
-            }}
-          />
-          <Modal
-            visible={weightModalVisible}
-            transparent
-            animationType="fade"
-            onRequestClose={() => setWeightModalVisible(false)}
-          >
-            <View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.5)'}}>
-              <View style={{backgroundColor:'#222',padding:24,borderRadius:16,width:280}}>
-                <Text style={{color:'#fff',fontSize:16,marginBottom:12}}>Enter your weight (kg)</Text>
-                <TextInput
-                  style={{backgroundColor:'#333',color:'#fff',borderRadius:8,padding:10,marginBottom:16,fontSize:16}}
-                  placeholder="e.g. 65"
-                  placeholderTextColor="#aaa"
-                  value={customWeight}
-                  onChangeText={setCustomWeight}
-                  keyboardType="number-pad"
-                  autoFocus
-                />
-                <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
-                  <Pressable onPress={()=>setWeightModalVisible(false)} style={{marginRight:16}}>
-                    <Text style={{color:'#aaa',fontSize:16}}>Cancel</Text>
-                  </Pressable>
-                  <Pressable onPress={handleWeightModalSave}>
-                    <Text style={{color:'#00FF00',fontSize:16}}>Save</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          </Modal>
+          <View style={{ position: 'absolute', width: 353, height: 52, top: 520, left: 20, borderRadius: 20}}>
+            <DropdownPicker
+              label="Height"
+              data={heightOptions}
+              selectedValue={height}
+              onSelect={setHeight}
+            />
+          </View>
+          <View style={{ position: 'absolute', width: 353, height: 52, top:604, left: 20, borderRadius: 20 }}>
+            <DropdownPicker
+              label="Weight"
+              data={weightOptions}
+              selectedValue={weight}
+              onSelect={setWeight}
+            />
+          </View>
           
           {/* 4. CTA Button */}
-          <TouchableOpacity style={styles.getStartedButton}>
-            <Text style={styles.getStartedButtonText}>Get Started</Text>
-            <Image source={doubleArrowIcon} style={styles.getStartedIcon} />
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {/* TODO: handle get started action */}}
+            style={{ position: 'absolute', left: 4, bottom: 5 }}
+          >
+            <Animated.View
+              style={[
+                styles.getStartedButton,
+                {
+                  transform: [
+                    {
+                      scale: tripleArrowPulse.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 1.045], // reduced zoom
+                      }),
+                    },
+                  ],
+                  backgroundColor: tripleArrowPulse.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['#008800', '#00b800'],
+                  }),
+                  shadowColor: '#00FF00',
+                  shadowOpacity: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.38] }),
+                  shadowRadius: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [6, 18] }),
+                  shadowOffset: { width: 0, height: 0 },
+                  elevation: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [2, 10] }),
+                },
+              ]}
+            >
+              <Animated.Text
+                style={[
+                  styles.getStartedButtonText,
+                  {
+                    color: tripleArrowPulse.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['rgba(255,255,255,0.8)', '#FFFFFF'],
+                    }),
+                    transform: [
+                      {
+                        scale: tripleArrowPulse.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [1, 1.035], // reduced text zoom
+                        }),
+                      },
+                    ],
+                    textShadowColor: '#00FF99',
+                    textShadowRadius: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 8] }),
+                    textShadowOffset: { width: 0, height: 0 },
+                  },
+                ]}
+              >
+                Get Started
+              </Animated.Text>
+              <AnimatedTripleArrow source={doubleArrowIcon} style={styles.getStartedIcon} />
+            </Animated.View>
           </TouchableOpacity>
 
         </View>
@@ -255,183 +217,156 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '700',
-    fontFamily: 'FamiljenGrotesk-Regular',
+    fontFamily: 'FamiljenGrotesk-Bold',
+    fontWeight: '400',
+    fontSize: 25,
+    lineHeight: 25,
+    letterSpacing: 0,
     position: 'absolute',
-    top: 70,
+    top: 45,
     left: 24,
   },
-  subtitle: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: 14,
+  basicInfoText: {
     fontFamily: 'FamiljenGrotesk-Regular',
+    fontWeight: '400',
+    fontStyle: 'normal',
+    fontSize: 12,
+    lineHeight: 14,
+    letterSpacing: 0,
+    color: 'rgba(255, 255, 255, 0.8)',
     position: 'absolute',
-    top: 110,
+    top: 75,
     left: 24,
-    width: '90%',
+    width: '100%',
   },
   profilePicContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    top: 180,
+    top: 135,
     alignSelf: 'center',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   profilePicIcon: {
-    width: 50,
-    height: 50,
-    tintColor: '#FFFFFF',
+    width: 120,
+    height: 120,
+    
   },
   cameraIconContainer: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#FFFFFF',
+    
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: 0,
-    right: 0,
+    bottom: 5,
+    right: 5,
   },
   cameraIcon: {
-    width: 18,
-    height: 18,
+    width: 22,
+    height: 22,
     tintColor: '#000000',
   },
   labelName: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     fontFamily: 'FamiljenGrotesk-Regular',
     position: 'absolute',
-    top: 285,
+    top: 237,
     left: 24,
   },
   labelAge: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     fontFamily: 'FamiljenGrotesk-Regular',
     position: 'absolute',
-    top: 365,
+    top: 335,
     left: 24,
   },
   labelGender: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     fontFamily: 'FamiljenGrotesk-Regular',
     position: 'absolute',
-    top: 470,
+    top: 425,
     left: 24,
-  },
-  labelHeight: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500',
-    fontFamily: 'FamiljenGrotesk-Regular',
-    position: 'absolute',
-    top: 560,
-    left: 24,
-  },
-  labelWeight: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500',
-    fontFamily: 'FamiljenGrotesk-Regular',
-    position: 'absolute',
-    top: 640,
-    left: 24,
-  },
-  input: {
-    width: '100%',
-    height: 56,
-    borderRadius: 14,
-    paddingHorizontal: 20,
-    color: '#FFFFFF',
-    fontSize: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    position: 'absolute',
-    alignSelf: 'center',
-    fontFamily: 'FamiljenGrotesk-Regular',
+    
   },
   genderRow: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     position: 'absolute',
-    top: 500,
+    top: 460,
     left: 24,
+    zIndex: 10,
+    backgroundColor: 'transparent',
+    
   },
   radioButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   radioButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 18,
+    height: 18,
+    borderRadius: 10,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.7)',
+    borderColor: '#D9D9D9',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent',
+    position: 'relative',
+    overflow: 'hidden',
   },
   radioButtonSelected: {
     width: 12,
     height: 12,
     borderRadius: 6,
     backgroundColor: '#00FF00', // Accent color
+    position: 'absolute',
+    opacity: 1,
+    transform: [{ rotate: '0deg' }],
+    zIndex: 2,
   },
   radioLabel: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 14,
     marginLeft: 10,
     fontFamily: 'FamiljenGrotesk-Regular',
+    fontWeight: '600',
   },
-  pickerInput: {
-    width: '100%',
-    height: 56,
-    borderRadius: 14,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    position: 'absolute',
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  pickerIcon: {
-    width: 20,
-    height: 20,
-    tintColor: 'rgba(255, 255, 255, 0.7)',
-    position: 'absolute',
-    right: 20,
-  },
+  
   getStartedButton: {
-    width: '100%',
-    height: 58,
-    backgroundColor: '#00FF00',
-    borderRadius: 999, // Pill shape
+    position: 'absolute',
+    width: 330,
+    height: 52,
+    left: 20,
+    bottom: 50,
+    backgroundColor: '#008800', // dark green, matches signup button
+    borderRadius: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 30,
-    position: 'absolute',
-    bottom: 40,
     alignSelf: 'center',
   },
   getStartedButtonText: {
-    color: '#000000',
-    fontWeight: '600',
+    color: 'rgba(255,255,255,0.8)', // dimmer white
+    fontWeight: '500',
     fontSize: 18,
-    fontFamily: 'FamiljenGrotesk-Regular',
+    fontFamily: 'FamiljenGrotesk-Bold',
   },
   getStartedIcon: {
-    width: 30,
-    height: 30,
-    tintColor: '#000000',
+    width: 40,
+    height: 20,
+    tintColor: ' #FFFFFF' ,
   },
 });
