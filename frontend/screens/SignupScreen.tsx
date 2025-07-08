@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import AuthInputField from '../components/AuthInputField';
+import PrimaryButton from '../components/PrimaryButton';
+import SocialLoginRow from '../components/SocialLoginRow';
+import { StatusBar } from 'expo-status-bar';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import bgImage from '../assets/images/cc3cfeee16ef7cccd3db0ae8cc3a8c1de31fa905.jpg';
-import logo from '../assets/images/pulsefit-logo.png';
-import googleIcon from '../assets/images/google-icon.png';
-import appleIcon from '../assets/images/apple-icon.png';
-
-const { width, height } = Dimensions.get('window');
+import bgImage from '../assets/images/auth-bg.jpg';
+// import logo from '../assets/images/pulsefit-logo.png';
+import PulseFit_Logo from '../components/PulseFit_Logo';
+// import googleIcon from '../assets/images/google-icon.png';
+// import appleIcon from '../assets/images/apple-icon.png';
 
 // Define the navigation type for better type safety
 // Adjust RootStackParamList as per your navigation setup
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
+  Onboarding1: undefined;
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
@@ -25,52 +29,75 @@ export default function SignupScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Image source={bgImage} style={styles.backgroundImage} />
-      <View style={styles.overlay} />
-      <View style={styles.content}>
-        <Image source={logo} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.title}>Sign Up</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#bbb"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Create Password"
-          placeholderTextColor="#bbb"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#bbb"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-        <TouchableOpacity style={styles.signupButton}>
-          <Text style={styles.signupButtonText}>Sign Up</Text>
-        </TouchableOpacity>
-        <Text style={styles.orText}>Or continue with</Text>
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialButton}>
-            <Image source={googleIcon} style={styles.socialIcon} />
-            <Text style={styles.socialText}>Google</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton}>
-            <Image source={appleIcon} style={styles.socialIcon} />
-            <Text style={styles.socialText}>Apple</Text>
-          </TouchableOpacity>
+      <StatusBar style="light" translucent backgroundColor="transparent" />
+      <View style={styles.roundedClip}>
+        <Image source={bgImage} style={styles.backgroundImage} />
+        <View style={styles.overlay} />
+        <View style={styles.content}>
+          <PulseFit_Logo />
+          <Text style={styles.title}>Sign Up</Text>
+          <AuthInputField
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            returnKeyType="next"
+          />
+          <AuthInputField
+            placeholder="Create Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            style={styles.inputPassword}
+          />
+          <AuthInputField
+            placeholder="Confirm Password"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            style={styles.inputConfirm}
+          />
+          <PrimaryButton
+            title="Sign Up"
+            style={styles.signupButton}
+            // textStyle={styles.signupButtonText} // Removed: style does not exist, see TS error
+            onPress={() => navigation.navigate('Onboarding1')}
+          />
+          <Text style={styles.orText}>Or continue with</Text>
+          <View style={{
+            position: 'absolute',
+            top: 562,
+            left: 39,
+            width: 85,
+            borderBottomWidth: 1,
+            borderBottomColor: '#fff',
+            alignSelf: 'center',
+          }} />
+          <View style={{
+            position: 'absolute',
+            top: 562,
+            left: 270,
+            width: 85,
+            borderBottomWidth: 1,
+            borderBottomColor: '#fff',
+            alignSelf: 'center',
+          }} />
+          <SocialLoginRow
+            style={styles.socialRow}
+            onGooglePress={() => {}}
+            onApplePress={() => {}}
+          />
+          {/* Footer Link */}
+          <Text style={[styles.footerText, {left: 54}]}>
+            Already have an account?{' '}
+            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Login')} style={{padding: 0, margin: 0}}>
+              <Text style={[styles.footerLink, {padding: 0, margin: 7, height: 30, width: 60, left: -8}]}>Log In</Text>
+            </TouchableOpacity>
+          </Text>
+          {/* PulseFit_Logo now handles the logo and text */}
         </View>
-        <Text style={styles.loginText}>
-          Already have an account?{' '}
-          <Text style={styles.loginLink} onPress={() => navigation.navigate('Login')}>Log In</Text>
-        </Text>
       </View>
     </View>
   );
@@ -79,15 +106,28 @@ export default function SignupScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    position: 'relative',
     backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roundedClip: {
+    width: 393,
+    height: 852,
+    borderRadius: 40,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   backgroundImage: {
     position: 'absolute',
-    width: width,
-    height: height,
+    width: 393,
+    height: 852,
     top: 0,
     left: 0,
     resizeMode: 'cover',
@@ -98,87 +138,112 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
+    alignItems: 'flex-start',
     paddingHorizontal: 20,
+    paddingTop: 98, // match design top offset for logo
+    position: 'relative', // Ensure absolute children are positioned relative to this
   },
-  logo: {
-    width: 120,
-    height: 60,
-    marginBottom: 10,
-    marginTop: 30,
-  },
+
   title: {
     color: '#fff',
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 25,
+    fontWeight: '500', // Make title bold
+    fontFamily: 'FamiljenGrotesk-Bold', // Use bold variant
     alignSelf: 'flex-start',
-    marginBottom: 20,
-    marginLeft: 10,
+    position: 'absolute',
+    top: 189,
+    left: 30,
+    width: 150,
+    height: 36,
+    lineHeight: 25,
+    letterSpacing: 0,
   },
   input: {
-    width: '100%',
-    height: 48,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    color: '#fff',
-    marginBottom: 15,
-    fontSize: 16,
+    position: 'absolute',
+    top: 241,
+    left: 33,  
+  },
+  inputPassword: {
+    position: 'absolute',
+    top: 308,
+    left: 33,
+  },
+  inputConfirm: {
+    position: 'absolute',
+    top: 377,
+    left: 33,
   },
   signupButton: {
-    width: '100%',
-    height: 48,
-    backgroundColor: '#00D100',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 5,
-    marginBottom: 15,
-  },
-  signupButtonText: {
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: 18,
+    position: 'absolute',
+    top: 464,
+    left: 33,
   },
   orText: {
+    width: 200,
+    height: 20,
+    position: 'absolute',
+    top: 552,
+    left: 98,
+    fontWeight: '500',
+    fontSize: 16,
+    lineHeight: 20,
+    letterSpacing: 0,
     color: '#fff',
-    marginVertical: 10,
-    fontSize: 15,
     textAlign: 'center',
+    fontFamily: 'FamiljenGrotesk-Bold',
   },
   socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eee',
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    marginHorizontal: 8,
-  },
-  socialIcon: {
-    width: 22,
-    height: 22,
-    marginRight: 8,
-  },
-  socialText: {
-    color: '#222',
-    fontWeight: '600',
-    fontSize: 15,
+    position: 'absolute',
+    top: 600,
+    left: 20,
   },
   loginText: {
+    fontWeight: '400',
+    fontSize: 15,
+    lineHeight: 8,
+    letterSpacing: 0,
     color: '#fff',
-    fontSize: 14,
     textAlign: 'center',
+    width: 307,
+    height: 20,
+    position: 'absolute',
+    top: 678,
+    left: 42,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: 'FamiljenGrotesk-Regular',
   },
-  loginLink: {
-    color: '#00D100',
-    fontWeight: 'bold',
+  footerText: {
+    fontWeight: '400',
+    fontSize: 15,
+    lineHeight: 15,
+    letterSpacing: 0,
+    color: '#fff',
+    textAlign: 'center',
+    width: 307,
+    height: 20,
+    position: 'absolute',
+    top: 678,
+    left: 46,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: 'FamiljenGrotesk-Regular',
+  },
+  footerLink: {
+    fontWeight: '500',
+    color: '#00FF00',
+    fontFamily: 'FamiljenGrotesk-Bold',
+  },
+  footerLinkPressed: {
+    opacity: 0.5,
   },
 });
