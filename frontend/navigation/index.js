@@ -6,6 +6,7 @@ import React from 'react';
 import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OnboardingScreen1 from '../screens/OnboardingScreen1';
+import OnboardingScreen2 from '../screens/OnboardingScreen2';
 
 const Stack = createStackNavigator();
 
@@ -26,6 +27,11 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Onboarding1"
           component={OnboardingScreen1}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="OnboardingScreen2"
+          component={OnboardingScreen2}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

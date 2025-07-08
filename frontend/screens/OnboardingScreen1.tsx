@@ -13,7 +13,7 @@ import doubleArrowIcon from '../assets/images/double-arrow-right-icon.png';
 import AnimatedTripleArrow, { tripleArrowPulse } from '../components/AnimatedTripleArrow';
 import DropdownPicker from '../components/DropdownPicker';
 
-export default function BasicInfoScreen() {
+export default function BasicInfoScreen({ navigation }: any) {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
@@ -128,7 +128,7 @@ export default function BasicInfoScreen() {
           {/* 4. CTA Button */}
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => {/* TODO: handle get started action */}}
+            onPress={() => navigation && navigation.navigate('OnboardingScreen2')}
             style={{ position: 'absolute', left: 4, bottom: 5 }}
           >
             <Animated.View
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   title: {
     color: '#FFFFFF',
     fontFamily: 'FamiljenGrotesk-Bold',
-    fontWeight: '400',
+    fontWeight: '500',
     fontSize: 25,
     lineHeight: 25,
     letterSpacing: 0,
@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
   labelName: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'FamiljenGrotesk-Regular',
+    fontWeight: '500',
+    fontFamily: 'FamiljenGrotesk-Bold',
     position: 'absolute',
     top: 237,
     left: 24,
@@ -285,8 +285,8 @@ const styles = StyleSheet.create({
   labelAge: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'FamiljenGrotesk-Regular',
+    fontWeight: '500',
+    fontFamily: 'FamiljenGrotesk-Bold',
     position: 'absolute',
     top: 335,
     left: 24,
@@ -294,8 +294,8 @@ const styles = StyleSheet.create({
   labelGender: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'FamiljenGrotesk-Regular',
+    fontWeight: '500',
+    fontFamily: 'FamiljenGrotesk-Bold',
     position: 'absolute',
     top: 425,
     left: 24,
@@ -340,8 +340,8 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     marginLeft: 10,
-    fontFamily: 'FamiljenGrotesk-Regular',
-    fontWeight: '600',
+    fontFamily: 'FamiljenGrotesk-Bold',
+    fontWeight: '500',
   },
   
   getStartedButton: {

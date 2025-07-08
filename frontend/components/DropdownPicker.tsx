@@ -17,7 +17,7 @@ interface DropdownPickerProps {
   label: string;
   data: string[];
   selectedValue: string | null;
-  onSelect: (value: string) => void;
+  onSelect: (value: string2) => void;
   style?: object;
   dropdownTextStyle?: object;
   dropdownStyle?: object;
@@ -119,7 +119,7 @@ export default function DropdownPicker({
                   fontSize: 15,
                   width: '100%',
                   alignSelf: 'stretch',
-                  fontFamily: 'FamiljenGrotesk-Regular',
+                  fontFamily: 'FamiljenGrotesk-Bold',
                   fontWeight: '500',
                 }}
                 placeholder={label === 'Height' ? 'e.g. 170' : label === 'Weight' ? 'e.g. 65' : 'Enter value'}
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
-    fontFamily: 'FamiljenGrotesk-Regular',
+    fontFamily: 'FamiljenGrotesk-Bold',
     marginBottom: 18,
   },
   pickerButton: {
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     bottom:15,
 
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
-    fontFamily: 'FamiljenGrotesk-Bold',
+    fontFamily: 'FamiljenGrotesk-Regular',
     fontWeight: '500',
     opacity: 1,
     marginBottom: 1,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   pickerButtonText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontFamily: 'FamiljenGrotesk-Regular',
+    fontFamily: 'FamiljenGrotesk-Bold',
     fontWeight: '500',
   },
 
