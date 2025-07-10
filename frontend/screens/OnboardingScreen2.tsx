@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import DropdownPicker from '../components/DropdownPicker';
+import EnvironmentPicker from '../components/EnvironmentPicker';
 import BreadcrumbMenu from '../components/BreadcrumbMenu';
 
 // Icon imports (update paths as needed)
@@ -40,6 +41,7 @@ const fitnessGoals = [
 const environments = ['Home', 'Gym', 'Outdoor'];
 const days = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
 
+
 export default function OnboardingScreen2({ navigation }) {
   const [selectedGoals, setSelectedGoals] = useState([]);
   const [environment, setEnvironment] = useState('Home');
@@ -59,7 +61,7 @@ export default function OnboardingScreen2({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} removeClippedSubviews={false}>
         <Text style={styles.title}>What’s Your Fitness Goal?</Text>
         <Text style={styles.subtitle}>
           Choose one or more goals to help us create your perfect workout plan.
@@ -132,24 +134,29 @@ export default function OnboardingScreen2({ navigation }) {
               {selectedGoals.includes('yoga') && <View style={styles.checkboxInner} />}
             </View>
           </TouchableOpacity>
-          <View style={styles.goalCardSpacer} />
+          {/* Spacer removed: goalCardSpacer style does not exist */}
         </View>
         {/* Third row: Improve Mental Wellness (left, wide), breadcrumb menu (right) */}
         <View style={styles.goalsRowMental}>
-          {/* Improve Mental Wellness Card - pixel-perfect layout */}
+          {/* Improve Mental Wellness Card - pixel-perfect layout, decoupled styles */}
           <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardMental, selectedGoals.includes('mental') && styles.goalCardSelected, styles.goalMentalCardRow]}
+            style={[
+              styles.goalCard,
+              styles.goalCardMental,
+              selectedGoals.includes('mental') && styles.goalCardSelected,
+              styles.goalMentalCardRow
+            ]}
             onPress={() => toggleGoal('mental')}
             activeOpacity={0.85}
           >
             {/* Icon */}
-            <View style={[styles.goalIconWrap, styles.goalMentalIconWrap]}> 
-              <Image source={fitnessGoals[3].icon} style={[styles.goalIcon, styles.goalMentalIcon]} />
+            <View style={styles.goalMentalIconWrap}>
+              <Image source={fitnessGoals[3].icon} style={styles.goalMentalIcon} />
             </View>
             {/* Texts */}
             <View style={styles.goalMentalTextWrap}>
-              <Text style={styles.goalTitle}>Improve Mental Wellness</Text>
-              <Text style={styles.goalDesc}>Use movement to{"\n"}reduce stress</Text>
+              <Text style={styles.goalMentalTitle}>Improve Mental Wellness</Text>
+              <Text style={styles.goalMentalDesc}>Use movement to reduce stress</Text>
             </View>
             {/* Checkbox */}
             <View
@@ -159,20 +166,24 @@ export default function OnboardingScreen2({ navigation }) {
             </View>
           </TouchableOpacity>
         </View>
+        {/* Environment label, Home dropdown, and BreadcrumbMenu */}
         <View style={styles.envRow}>
           <Text style={styles.envLabel}>Environment</Text>
-          <DropdownPicker
-            label=""
-            data={environments}
-            selectedValue={environment}
-            onSelect={setEnvironment}
-            style={styles.envDropdown}
-            dropdownTextStyle={styles.envDropdownText}
-            dropdownStyle={styles.envDropdownModal}
-          />
+    <View style={styles.envPickerWrap}>
+      <EnvironmentPicker selected={environment} onSelect={setEnvironment} />
+    </View>
+          <View style={styles.breadcrumbWrap}>
+            {/* Remove breadcrumbMenuOuter wrapper if not defined in styles */}
+            <BreadcrumbMenu />
+          </View>
         </View>
         <Text style={styles.availLabel}>Availability</Text>
-        <View style={styles.daysRow}>
+        <ScrollView
+          style={styles.daysRowFixed}
+          contentContainerStyle={styles.daysRow}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
           {days.map((day) => (
             <TouchableOpacity
               key={day}
@@ -183,7 +194,7 @@ export default function OnboardingScreen2({ navigation }) {
               <Text style={[styles.dayBtnText, availability.includes(day) && styles.dayBtnTextSelected]}>{day}</Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8}>
             <Text style={styles.doneBtnText}>Done</Text>
@@ -259,8 +270,9 @@ const styles = StyleSheet.create({
     minHeight: 141,
   },
   goalCardWeight: {
-    width: 168,
+    width: 163,
     minHeight: 290,
+    marginRight:2,
   },
   goalCardYoga: {
     width: 157,
@@ -268,10 +280,8 @@ const styles = StyleSheet.create({
     bottom: 160,
   },
   goalCardMental: {
-    paddingRight: 52,
-    marginBottom: 0,
-    height: 80,
-    width: 272,
+    minHeight: 80,
+    width: 255,
     bottom: 170,
   },
   // 4. Card header row and icon
@@ -288,8 +298,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 5,
-    marginLeft: 15,
-    marginTop:10
+    marginLeft: 8,
+    marginTop:10,
+    
   },
   goalIcon: {
     width: 28,
@@ -302,6 +313,7 @@ const styles = StyleSheet.create({
 
   // 5. Card text wrappers and text
   goalTitleWrap: {
+    marginTop:10,
     marginLeft: 8,
     flex: 1,
     alignItems: 'flex-start',
@@ -309,7 +321,7 @@ const styles = StyleSheet.create({
   },
   goalTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '500',
     fontFamily: 'FamiljenGrotesk-Bold',
     marginBottom: 2,
@@ -318,36 +330,79 @@ const styles = StyleSheet.create({
   },
   goalDesc: {
     color: '#B0B0B0',
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'FamiljenGrotesk-Regular',
     marginBottom: 8,
     marginTop: 0,
+    maxWidth: 155  ,
+    marginLeft: 19,
+ 
   },
   goalDescYoga: {
     color: '#B0B0B0',
+    fontSize: 12,
     marginBottom: 18,
+    fontFamily: 'FamiljenGrotesk-Regular',
+   
+    
   },
-  goalMentalTextWrap: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-
-  // 6. Special mental card row/icon
+  // 6. Special mental card row/icon/text (decoupled and unified for mental card)
   goalMentalCardRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-
     paddingVertical: 0,
-    paddingHorizontal: 6,
+    paddingHorizontal: 3,
     marginBottom: 0,
   },
   goalMentalIconWrap: {
-    marginBottom: 0,
-    marginRight: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    backgroundColor: '#111',
+    marginBottom: 5, // match other icons
+    marginLeft: 8,
+    marginTop: 10,
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+   
   },
   goalMentalIcon: {
+    width: 28,
+    height: 28,
     tintColor: '#00FF00',
+    // alignItems removed, not needed for Image
+  },
+  goalMentalTextWrap: {
+    flex: 1,
+    flexDirection: 'column',  
+    alignItems: 'flex-start',
+    marginRight: 0,
+    marginLeft: 0,
+    
+  },
+  goalMentalTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+    fontFamily: 'FamiljenGrotesk-Bold',
+    marginBottom: 2,
+    textAlign: 'left',
+    lineHeight: 20,
+    marginTop: 10,
+    marginLeft: -8,
+    
+    
+  },
+  goalMentalDesc: {
+    color: '#B0B0B0',
+    fontSize: 12,
+    fontFamily: 'FamiljenGrotesk-Regular',
+    marginBottom: 8,
+    marginTop: 0,
+    flexWrap: 'wrap',
+    maxWidth: 105  ,
+    marginLeft: -8,
+    
   },
 
   // 7. Card checkboxes
@@ -375,12 +430,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#00FF00',
   },
   mentalCheckbox: {
-    position: 'relative',
-    right: undefined,
-    bottom: undefined,
-    marginLeft: 12,
+    marginLeft: 2,
     marginBottom: 0,
-    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 12,
+    bottom: 12,
+    
   },
 
   // 8. Menu icon (if used)
@@ -393,19 +450,31 @@ const styles = StyleSheet.create({
     tintColor: '#00FF00',
   },
 
-  // 9. Environment row and dropdown
+    // 9. Environment row and dropdown
   envRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 20,
     marginBottom: 10,
+    gap: 35, // Creates space between items, replacing the need for wrappers
+    
   },
+  
+  breadcrumbWrap: {
+    flex: 1,
+    alignItems: 'flex-end',
+    bottom: 250,
+    right: 15,
+  },
+
   envLabel: {
     color: '#fff',
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '500',
     fontFamily: 'FamiljenGrotesk-Bold',
     marginRight: 10,
+    position: 'absolute',
+    bottom: 200,
   },
   envDropdown: {
     width: 110,
@@ -422,24 +491,37 @@ const styles = StyleSheet.create({
   },
   envDropdownModal: {
     backgroundColor: '#222',
-    borderRadius: 12,
+
   },
 
   // 10. Availability label and days row
   availLabel: {
     color: '#fff',
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '500',
     fontFamily: 'FamiljenGrotesk-Bold',
     marginLeft: 20,
     marginTop: 10,
     marginBottom: 8,
+    bottom: 140
+  
   },
   daysRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
+    // Removed top offset to avoid clipping
+  },
+  daysRowFixed: {
+    position: 'absolute',
+    left: 10,
+    right: 0,
+    bottom: 150,
+    zIndex: 100,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 0,
     marginLeft: 10,
-    marginBottom: 24,
+    marginBottom: 4, 
+    maxHeight: 40,
   },
   dayBtn: {
     borderRadius: 16,
@@ -450,6 +532,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     marginRight: 8,
     marginBottom: 8,
+    height: 40,
+   
   },
   dayBtnSelected: {
     backgroundColor: '#101d10',
@@ -458,6 +542,8 @@ const styles = StyleSheet.create({
     color: '#00FF00',
     fontSize: 14,
     fontFamily: 'FamiljenGrotesk-Regular',
+    minWidth: 10,
+
   },
   dayBtnTextSelected: {
     color: '#fff',
@@ -473,31 +559,37 @@ const styles = StyleSheet.create({
   doneBtn: {
     flex: 1,
     backgroundColor: '#00FF00',
-    borderRadius: 16,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
     marginRight: 10,
+    width: 200,
   },
   doneBtnText: {
-    color: '#111',
-    fontWeight: 'bold',
+    color: '#ffff',
+    fontWeight: '500',
     fontSize: 17,
     fontFamily: 'FamiljenGrotesk-Bold',
   },
   skipBtn: {
     flex: 1,
     backgroundColor: '#191919',
-    borderRadius: 16,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
     marginLeft: 10,
   },
   skipBtnText: {
-    color: '#fff',
+    color: 'lightgreen',
     fontWeight: 'bold',
     fontSize: 17,
     fontFamily: 'FamiljenGrotesk-Bold',
+  },
+  envPickerWrap: {
+    position: 'absolute',
+    bottom: 200,
+    right:8,
   },
 });
