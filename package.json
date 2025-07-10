@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "expo": "^53.0.19",
     "nativewind": "^4.1.23"
   }
 }

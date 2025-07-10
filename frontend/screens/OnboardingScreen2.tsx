@@ -1,7 +1,7 @@
 // ...existing code...
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
-import DropdownPicker from '../components/DropdownPicker';
+// import DropdownPicker from '../components/DropdownPicker';
 import EnvironmentPicker from '../components/EnvironmentPicker';
 import BreadcrumbMenu from '../components/BreadcrumbMenu';
 
@@ -38,14 +38,18 @@ const fitnessGoals = [
   },
 ];
 
-const environments = ['Home', 'Gym', 'Outdoor'];
+// const environments = ['Home', 'Gym', 'Outdoor'];
 const days = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
 
 
-export default function OnboardingScreen2({ navigation }) {
+
+
+export default function OnboardingScreen2() {
   const [selectedGoals, setSelectedGoals] = useState([]);
   const [environment, setEnvironment] = useState('Home');
   const [availability, setAvailability] = useState([]);
+  // Track if the EnvironmentPicker is open
+  const [envPickerOpen, setEnvPickerOpen] = useState(false);
 
   const toggleGoal = (key) => {
     setSelectedGoals((prev) =>
@@ -61,128 +65,149 @@ export default function OnboardingScreen2({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} removeClippedSubviews={false}>
-        <Text style={styles.title}>What’s Your Fitness Goal?</Text>
-        <Text style={styles.subtitle}>
-          Choose one or more goals to help us create your perfect workout plan.
-        </Text>
-        {/* Top row: Build Muscle (left), Loose Weight (right) */}
-        <View style={styles.goalsRow}>
-          {/* Build Muscle Card - match image layout */}
-          <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardMuscle, selectedGoals.includes('muscle') && styles.goalCardSelected]}
-            onPress={() => toggleGoal('muscle')}
-            activeOpacity={0.85}
-          >
-            <View style={styles.goalCardHeaderRow}>
-              <View style={styles.goalIconWrap}>
-                <Image source={fitnessGoals[0].icon} style={[styles.goalIcon, selectedGoals.includes('muscle') && styles.goalIconSelected]} />
-              </View>
-              <View style={styles.goalTitleWrap}>
-                <Text style={styles.goalTitle}>Build{"\n"}Muscle</Text>
-              </View>
+      {/* Overlay to block all interaction except EnvironmentPicker when open */}
+      {envPickerOpen && (
+        <TouchableOpacity
+          activeOpacity={1}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.01)', // nearly transparent
+            zIndex: 9999,
+          }}
+          onPress={() => setEnvPickerOpen(false)}
+        />
+      )}
+
+      <Text style={styles.title}>What’s Your Fitness Goal?</Text>
+      <Text style={styles.subtitle}>
+        Choose one or more goals to help us create your perfect workout plan.
+      </Text>
+      {/* Top row: Build Muscle (left), Loose Weight (right) */}
+      <View style={styles.goalsRow} pointerEvents={envPickerOpen ? 'none' : 'auto'}>
+        {/* Build Muscle Card - match image layout */}
+        <TouchableOpacity
+          style={[styles.goalCard, styles.goalCardMuscle, selectedGoals.includes('muscle') && styles.goalCardSelected]}
+          onPress={() => toggleGoal('muscle')}
+          activeOpacity={0.85}
+        >
+          <View style={styles.goalCardHeaderRow}>
+            <View style={styles.goalIconWrap}>
+              <Image source={fitnessGoals[0].icon} style={[styles.goalIcon, selectedGoals.includes('muscle') && styles.goalIconSelected]} />
             </View>
-            <Text style={styles.goalDesc}>Increase strength and muscle mass.</Text>
-            <View
-              style={[styles.checkbox, selectedGoals.includes('muscle') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('muscle') && <View style={styles.checkboxInner} />}
+            <View style={styles.goalTitleWrap}>
+              <Text style={styles.goalTitle}>Build{"\n"}Muscle</Text>
             </View>
-          </TouchableOpacity>
-          {/* Loose Weight Card - match image layout */}
-          <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardWeight, selectedGoals.includes('weight') && styles.goalCardSelected]}
-            onPress={() => toggleGoal('weight')}
-            activeOpacity={0.85}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 2 }}>
-              <View style={styles.goalIconWrap}>
-                <Image source={fitnessGoals[1].icon} style={[styles.goalIcon, selectedGoals.includes('weight') && styles.goalIconSelected]} />
-              </View>
-              <View style={styles.goalTitleWrap}>
-                <Text style={styles.goalTitle}>Loose{"\n"}Weight</Text>
-              </View>
-            </View>
-            <Text style={styles.goalDesc}>Burn fat and improve cardiovascular health with our cardio programs and other workout programs tailored for this goal.</Text>
-            <View
-              style={[styles.checkbox, selectedGoals.includes('weight') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('weight') && <View style={styles.checkboxInner} />}
-            </View>
-          </TouchableOpacity>
-        </View>
-        {/* Second row: Improve Flexibility (left), empty (right) */}
-        <View style={styles.goalsRow}>
-          {/* Improve Flexibility Card - match image layout */}
-          <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardYoga, selectedGoals.includes('yoga') && styles.goalCardSelected]}
-            onPress={() => toggleGoal('yoga')}
-            activeOpacity={0.85}
-          >
-            <View style={styles.goalCardHeaderRow}>
-              <View style={styles.goalIconWrap}>
-                <Image source={fitnessGoals[2].icon} style={[styles.goalIcon, selectedGoals.includes('yoga') && styles.goalIconSelected]} />
-              </View>
-              <View style={styles.goalTitleWrap}>
-                <Text style={styles.goalTitle}>Improve{"\n"}Flexibility</Text>
-              </View>
-            </View>
-            <Text style={[styles.goalDesc, styles.goalDescYoga]}>Enhance mobility and prevent injuries</Text>
-            <View
-              style={[styles.checkbox, selectedGoals.includes('yoga') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('yoga') && <View style={styles.checkboxInner} />}
-            </View>
-          </TouchableOpacity>
-          {/* Spacer removed: goalCardSpacer style does not exist */}
-        </View>
-        {/* Third row: Improve Mental Wellness (left, wide), breadcrumb menu (right) */}
-        <View style={styles.goalsRowMental}>
-          {/* Improve Mental Wellness Card - pixel-perfect layout, decoupled styles */}
-          <TouchableOpacity
-            style={[
-              styles.goalCard,
-              styles.goalCardMental,
-              selectedGoals.includes('mental') && styles.goalCardSelected,
-              styles.goalMentalCardRow
-            ]}
-            onPress={() => toggleGoal('mental')}
-            activeOpacity={0.85}
-          >
-            {/* Icon */}
-            <View style={styles.goalMentalIconWrap}>
-              <Image source={fitnessGoals[3].icon} style={styles.goalMentalIcon} />
-            </View>
-            {/* Texts */}
-            <View style={styles.goalMentalTextWrap}>
-              <Text style={styles.goalMentalTitle}>Improve Mental Wellness</Text>
-              <Text style={styles.goalMentalDesc}>Use movement to reduce stress</Text>
-            </View>
-            {/* Checkbox */}
-            <View
-              style={[styles.checkbox, styles.mentalCheckbox, selectedGoals.includes('mental') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('mental') && <View style={styles.checkboxInner} />}
-            </View>
-          </TouchableOpacity>
-        </View>
-        {/* Environment label, Home dropdown, and BreadcrumbMenu */}
-        <View style={styles.envRow}>
-          <Text style={styles.envLabel}>Environment</Text>
-    <View style={styles.envPickerWrap}>
-      <EnvironmentPicker selected={environment} onSelect={setEnvironment} />
-    </View>
-          <View style={styles.breadcrumbWrap}>
-            {/* Remove breadcrumbMenuOuter wrapper if not defined in styles */}
-            <BreadcrumbMenu />
           </View>
+          <Text style={styles.goalDesc}>Increase strength and muscle mass.</Text>
+          <View
+            style={[styles.checkbox, selectedGoals.includes('muscle') && styles.checkboxChecked]}
+          >
+            {selectedGoals.includes('muscle') && <View style={styles.checkboxInner} />}
+          </View>
+        </TouchableOpacity>
+        {/* Loose Weight Card - match image layout */}
+        <TouchableOpacity
+          style={[styles.goalCard, styles.goalCardWeight, selectedGoals.includes('weight') && styles.goalCardSelected]}
+          onPress={() => toggleGoal('weight')}
+          activeOpacity={0.85}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 2 }}>
+            <View style={styles.goalIconWrap}>
+              <Image source={fitnessGoals[1].icon} style={[styles.goalIcon, selectedGoals.includes('weight') && styles.goalIconSelected]} />
+            </View>
+            <View style={styles.goalTitleWrap}>
+              <Text style={styles.goalTitle}>Loose{"\n"}Weight</Text>
+            </View>
+          </View>
+          <Text style={styles.goalDesc}>Burn fat and improve cardiovascular health with our cardio programs and other workout programs tailored for this goal.</Text>
+          <View
+            style={[styles.checkbox, selectedGoals.includes('weight') && styles.checkboxChecked]}
+          >
+            {selectedGoals.includes('weight') && <View style={styles.checkboxInner} />}
+          </View>
+        </TouchableOpacity>
+      </View>
+      {/* Second row: Improve Flexibility (left), empty (right) */}
+      <View style={styles.goalsRow} pointerEvents={envPickerOpen ? 'none' : 'auto'}>
+        {/* Improve Flexibility Card - match image layout */}
+        <TouchableOpacity
+          style={[styles.goalCard, styles.goalCardYoga, selectedGoals.includes('yoga') && styles.goalCardSelected]}
+          onPress={() => toggleGoal('yoga')}
+          activeOpacity={0.85}
+        >
+          <View style={styles.goalCardHeaderRow}>
+            <View style={styles.goalIconWrap}>
+              <Image source={fitnessGoals[2].icon} style={[styles.goalIcon, selectedGoals.includes('yoga') && styles.goalIconSelected]} />
+            </View>
+            <View style={styles.goalTitleWrap}>
+              <Text style={styles.goalTitle}>Improve{"\n"}Flexibility</Text>
+            </View>
+          </View>
+          <Text style={[styles.goalDesc, styles.goalDescYoga]}>Enhance mobility and prevent injuries</Text>
+          <View
+            style={[styles.checkbox, selectedGoals.includes('yoga') && styles.checkboxChecked]}
+          >
+            {selectedGoals.includes('yoga') && <View style={styles.checkboxInner} />}
+          </View>
+        </TouchableOpacity>
+        {/* Spacer removed: goalCardSpacer style does not exist */}
+      </View>
+      {/* Third row: Improve Mental Wellness (left, wide), breadcrumb menu (right) */}
+      <View style={styles.goalsRowMental} pointerEvents={envPickerOpen ? 'none' : 'auto'}>
+        {/* Improve Mental Wellness Card - pixel-perfect layout, decoupled styles */}
+        <TouchableOpacity
+          style={[
+            styles.goalCard,
+            styles.goalCardMental,
+            selectedGoals.includes('mental') && styles.goalCardSelected,
+            styles.goalMentalCardRow
+          ]}
+          onPress={() => toggleGoal('mental')}
+          activeOpacity={0.85}
+        >
+          {/* Icon */}
+          <View style={styles.goalMentalIconWrap}>
+            <Image source={fitnessGoals[3].icon} style={styles.goalMentalIcon} />
+          </View>
+          {/* Texts */}
+          <View style={styles.goalMentalTextWrap}>
+            <Text style={styles.goalMentalTitle}>Improve Mental Wellness</Text>
+            <Text style={styles.goalMentalDesc}>Use movement to reduce stress</Text>
+          </View>
+          {/* Checkbox */}
+          <View
+            style={[styles.checkbox, styles.mentalCheckbox, selectedGoals.includes('mental') && styles.checkboxChecked]}
+          >
+            {selectedGoals.includes('mental') && <View style={styles.checkboxInner} />}
+          </View>
+        </TouchableOpacity>
+      </View>
+      {/* Environment label, Home dropdown, and BreadcrumbMenu */}
+      <View style={styles.envRow} pointerEvents={envPickerOpen ? 'auto' : 'auto'}>
+        <Text style={styles.envLabel}>Environment</Text>
+        <View style={styles.envPickerWrap}>
+          <EnvironmentPicker
+            selected={environment}
+            onSelect={setEnvironment}
+            open={envPickerOpen}
+            setOpen={setEnvPickerOpen}
+          />
         </View>
-        <Text style={styles.availLabel}>Availability</Text>
+        <View style={styles.breadcrumbWrap} pointerEvents={envPickerOpen ? 'none' : 'auto'}>
+          {/* Remove breadcrumbMenuOuter wrapper if not defined in styles */}
+          <BreadcrumbMenu />
+        </View>
+      </View>
+      <Text style={styles.availLabel}>Availability</Text>
+      <View style={styles.daysRowFixed} pointerEvents={envPickerOpen ? 'none' : 'auto'}>
         <ScrollView
-          style={styles.daysRowFixed}
-          contentContainerStyle={styles.daysRow}
           horizontal
           showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.daysRow}
         >
           {days.map((day) => (
             <TouchableOpacity
@@ -195,15 +220,15 @@ export default function OnboardingScreen2({ navigation }) {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8}>
-            <Text style={styles.doneBtnText}>Done</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8}>
-            <Text style={styles.skipBtnText}>Skip</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      </View>
+      <View style={styles.actionRow} pointerEvents={envPickerOpen ? 'none' : 'auto'}>
+        <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8}>
+          <Text style={styles.doneBtnText}>Done</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8}>
+          <Text style={styles.skipBtnText}>Skip</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -212,7 +237,7 @@ const styles = StyleSheet.create({
   // 1. Screen container
   container: {
     flex: 1,
-    backgroundColor: '#111',
+    backgroundColor: '#060606', // updated to match request
     paddingTop: 32,
     paddingHorizontal: 0,
   },
@@ -258,7 +283,7 @@ const styles = StyleSheet.create({
     marginTop:1,
   },
   goalCard: {
-    backgroundColor: '#181818',
+    backgroundColor: 'rgb(15,15,17)',
     borderRadius: 30,
     marginBottom: 14,
     position: 'relative',
@@ -305,10 +330,11 @@ const styles = StyleSheet.create({
   goalIcon: {
     width: 28,
     height: 28,
-    tintColor: '#00FF00',
+    // Use a green tint that matches the screenshot (rgb selector for easy adjustment)
+    tintColor: '#00B300', // ← adjust this value with your mouse in your editor's color picker
   },
   goalIconSelected: {
-    tintColor: '#00FF00',
+    tintColor: '#00B300', // ← adjust this value as needed
   },
 
   // 5. Card text wrappers and text
@@ -369,7 +395,7 @@ const styles = StyleSheet.create({
   goalMentalIcon: {
     width: 28,
     height: 28,
-    tintColor: '#00FF00',
+    tintColor: '#00B300', // ← adjust this value as needed
     // alignItems removed, not needed for Image
   },
   goalMentalTextWrap: {
@@ -394,7 +420,7 @@ const styles = StyleSheet.create({
     
   },
   goalMentalDesc: {
-    color: '#B0B0B0',
+    color:'#B0B0B0',
     fontSize: 12,
     fontFamily: 'FamiljenGrotesk-Regular',
     marginBottom: 8,
@@ -447,7 +473,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 12,
     top: 12,
-    tintColor: '#00FF00',
+    tintColor: 'rgb(15,15,17)',
   },
 
     // 9. Environment row and dropdown
@@ -476,23 +502,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 200,
   },
-  envDropdown: {
-    width: 110,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: '#191919',
-    marginLeft: 0,
-    marginTop: 0,
-  },
-  envDropdownText: {
-    color: '#00FF00',
-    fontSize: 14,
-    fontFamily: 'FamiljenGrotesk-Regular',
-  },
-  envDropdownModal: {
-    backgroundColor: '#222',
 
+  envDropdownText: {
+    color: '#8BC34B', // Green as in image
+    fontSize: 17,
+    fontFamily: 'FamiljenGrotesk-Bold',
+    fontWeight: '700',
+    marginRight: 6,
   },
+
 
   // 10. Availability label and days row
   availLabel: {
@@ -502,8 +520,8 @@ const styles = StyleSheet.create({
     fontFamily: 'FamiljenGrotesk-Bold',
     marginLeft: 20,
     marginTop: 10,
-    marginBottom: 8,
-    bottom: 140
+    marginBottom: -10,
+    bottom: 170,
   
   },
   daysRow: {
@@ -515,38 +533,44 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 10,
     right: 0,
-    bottom: 150,
+    bottom: 130,
     zIndex: 100,
     backgroundColor: 'transparent',
     paddingHorizontal: 0,
     marginLeft: 10,
-    marginBottom: 4, 
+    marginBottom: 0, 
     maxHeight: 40,
   },
   dayBtn: {
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#00FF00',
+    borderColor: 'rgb(140, 160, 100)', 
     backgroundColor: 'transparent',
     paddingHorizontal: 14,
     paddingVertical: 6,
-    marginRight: 8,
+    marginRight: 7,
     marginBottom: 8,
+    marginTop: 8,
     height: 40,
-   
   },
   dayBtnSelected: {
-    backgroundColor: '#101d10',
+    backgroundColor: '#111', // Match background in image
+    borderColor: 'rgb(140, 160, 100)',
   },
   dayBtnText: {
-    color: '#00FF00',
-    fontSize: 14,
+    color: 'rgb(140, 160, 100)',
+    fontSize: 13,
     fontFamily: 'FamiljenGrotesk-Regular',
     minWidth: 10,
-
+    paddingLeft: 0,
+    paddingRight: 0,
+    marginLeft: -8,
+    marginRight: -8,
+    fontWeight: '600',
   },
   dayBtnTextSelected: {
-    color: '#fff',
+    color: '#fff', // White text when selected
+    fontWeight: '500',
   },
 
   // 11. Action buttons row
@@ -555,10 +579,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 20,
     marginBottom: 24,
+    bottom:70,
   },
   doneBtn: {
     flex: 1,
-    backgroundColor: '#00FF00',
+    backgroundColor: '#00B300', 
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -567,14 +592,14 @@ const styles = StyleSheet.create({
     width: 200,
   },
   doneBtnText: {
-    color: '#ffff',
+    color: '#FFFFFF',
     fontWeight: '500',
     fontSize: 17,
     fontFamily: 'FamiljenGrotesk-Bold',
   },
   skipBtn: {
     flex: 1,
-    backgroundColor: '#191919',
+    backgroundColor: 'rgb(15,15,17)', // Dark background as in image
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -582,8 +607,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   skipBtnText: {
-    color: 'lightgreen',
-    fontWeight: 'bold',
+    color: 'rgb(2, 97, 15)', // Muted green as in image
+    fontWeight: '500',
     fontSize: 17,
     fontFamily: 'FamiljenGrotesk-Bold',
   },

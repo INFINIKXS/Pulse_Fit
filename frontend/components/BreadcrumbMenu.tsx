@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#00FF00',
+    backgroundColor: '#00B300',
     marginVertical: 1,
   },
   lineRow: {
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 3,
     borderRadius: 2,
-    backgroundColor: '#00FF00',
+    backgroundColor: '#00B300',
     marginVertical: 2,
   },
 });

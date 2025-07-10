@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+
 
 const ENVIRONMENTS = ['Home', 'Gym', 'Outdoor'];
 
-export default function EnvironmentPicker({ selected, onSelect }) {
-  const [open, setOpen] = useState(false);
-
+// Now receives open and setOpen from parent
+export default function EnvironmentPicker({ selected, onSelect, open, setOpen }) {
   const handleSelect = (env) => {
     setOpen(false);
     if (onSelect) onSelect(env);
@@ -16,7 +16,7 @@ export default function EnvironmentPicker({ selected, onSelect }) {
       <TouchableOpacity
         style={styles.pickerBtn}
         activeOpacity={0.85}
-        onPress={() => setOpen((prev) => !prev)}
+        onPress={() => setOpen(!open)}
       >
         <Text style={styles.selectedText}>{selected}</Text>
         <Image source={require('../assets/images/chevron-down-icon.png')} style={[styles.arrowIcon, styles.chevronIcon]} />
@@ -54,10 +54,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderWidth: 2,
     borderColor: '#222',
-    
+    position: 'relative',
   },
   selectedText: {
-    color: '#00FF00',
+    color: 'rgb(140, 160, 100)',
     fontSize: 12,
     fontFamily: 'FamiljenGrotesk-Regular',
     fontWeight: '600',
@@ -67,29 +67,31 @@ const styles = StyleSheet.create({
   arrowIcon: {
     width: 16,
     height: 16,
-    tintColor: '#00FF00',
+    tintColor: 'rgb(140, 160, 100)', 
     resizeMode: 'contain',
-    
+    position: 'absolute',
+    left: 60,
+    marginTop: 1, // Center vertically for 16px height
   },
   chevronIcon: {
-    // You can override width/height here for larger size
-  width: 29, 
-  height: 24,
+    width: 29, 
+    height: 24,
+    tintColor: 'rgb(140, 160, 100)', 
   },
   dropdownMenu: {
     position: 'absolute',
     top: 38,
     left: 0,
-    backgroundColor: '#222',
+    backgroundColor: 'rgb(15,15,17)', // nearly opaque dark
     borderRadius: 12,
-    zIndex: 10,
+    zIndex: 10001, // ensure above overlay
     minWidth: 110,
     paddingVertical: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 4,
+    elevation: 10,
   },
   dropdownItem: {
     paddingVertical: 10,
