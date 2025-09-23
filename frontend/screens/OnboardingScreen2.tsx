@@ -1,9 +1,10 @@
-// ...existing code...
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 // import DropdownPicker from '../components/DropdownPicker';
 import EnvironmentPicker from '../components/EnvironmentPicker';
 import BreadcrumbMenu from '../components/BreadcrumbMenu';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '../navigation/navigation-types';
 
 // Icon imports (update paths as needed)
 import mentalHealthIcon from '../assets/images/ri_mental-health-fill.png';
@@ -45,6 +46,7 @@ const days = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Frid
 
 
 export default function OnboardingScreen2() {
+  const navigation = useNavigation<NavigationProp>();
   const [selectedGoals, setSelectedGoals] = useState([]);
   const [environment, setEnvironment] = useState('Home');
   const [availability, setAvailability] = useState([]);
@@ -222,7 +224,7 @@ export default function OnboardingScreen2() {
         </ScrollView>
       </View>
       <View style={styles.actionRow} pointerEvents={envPickerOpen ? 'none' : 'auto'}>
-        <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Home')}>
           <Text style={styles.doneBtnText}>Done</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8}>
@@ -614,7 +616,7 @@ const styles = StyleSheet.create({
   },
   envPickerWrap: {
     position: 'absolute',
-    bottom: 200,
+    bottom: 200, 
     right:8,
   },
 });
