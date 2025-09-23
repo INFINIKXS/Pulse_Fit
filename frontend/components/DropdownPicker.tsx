@@ -17,7 +17,7 @@ interface DropdownPickerProps {
   label: string;
   data: string[];
   selectedValue: string | null;
-  onSelect: (value: string2) => void;
+  onSelect: (value: string) => void;
   style?: object;
   dropdownTextStyle?: object;
   dropdownStyle?: object;
