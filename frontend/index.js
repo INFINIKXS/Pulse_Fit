@@ -1,8 +1,9 @@
-import { AppRegistry } from 'react-native';
-import { name as appName } from './app.json';
+import { View, Text } from 'react-native';
+import { registerRootComponent } from 'expo';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import AppNavigator from './navigation';
+import { AuthProvider } from './context/AuthContext';
 import React from 'react';
 
 function App() {
@@ -22,19 +23,29 @@ function App() {
   });
 
   React.useEffect(() => {
-    SplashScreen.preventAutoHideAsync();
+    // Prevent auto hide on mount
+    SplashScreen.preventAutoHideAsync().catch(console.warn);
   }, []);
 
   React.useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(console.warn);
     }
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff' }}>
+        <Text style={{ fontSize: 20, color: 'black' }}>Loading Fonts...</Text>
+      </View>
+    );
   }
 
-  return <AppNavigator />;
+  return (
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
+  );
 }
-AppRegistry.registerComponent(appName, () => App);
+
+registerRootComponent(App);

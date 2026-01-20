@@ -16,10 +16,32 @@ type RootStackParamList = {
   Login: undefined;
 };
 
+import { AuthContext } from '../context/AuthContext';
+import { Alert, ActivityIndicator } from 'react-native';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { signIn } = React.useContext(AuthContext)!;
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      // Navigation is handled by AuthContext state change (usually) 
+      // or we can manually navigate if the auth state doesn't auto-redirect
+    } catch (error: any) {
+      Alert.alert('Login Failed', error.response?.data?.error || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handler for reset password (placeholder)
   const handleResetPress = () => {
@@ -91,11 +113,15 @@ export default function LoginScreen({ navigation }: Props) {
           style={{ position: 'absolute', top: 328, left: 19, right: 29, height: 56, borderRadius: 20, paddingHorizontal: 20 }}
           autoCapitalize="none"
         />
-        <PrimaryButton
-          title="Log In"
-          onPress={() => {}}
-          style={{ position: 'absolute', top: 400, left: 19, right: 29, height: 56, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#00FF00" style={{ position: 'absolute', top: 410, alignSelf: 'center' }} />
+        ) : (
+          <PrimaryButton
+            title="Log In"
+            onPress={handleLogin}
+            style={{ position: 'absolute', top: 400, left: 19, right: 29, height: 56, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}
+          />
+        )}
         {/* Divider */}
         <Text style={{
           position: 'absolute',
@@ -111,11 +137,11 @@ export default function LoginScreen({ navigation }: Props) {
         <View style={{ position: 'absolute', top: 524, left: 19, width: 353, height: 128, alignItems: 'center', justifyContent: 'flex-start', flexDirection: 'column' }}>
           <TouchableOpacity style={{ right: 10, width: 323, height: 56, borderRadius: 20, backgroundColor: 'rgba(255, 255, 255, 0.35)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 0, paddingLeft: 18 }}>
             <Image source={require('../assets/images/google-icon.png')} style={{ width: 30, height: 30, marginRight: 105, marginLeft: 0 }} />
-            <Text style={{ right: 88,color: '#000000', fontSize: 14, fontWeight: '600', fontFamily: 'FamiljenGrotesk-Regular' }}>Continue with Google</Text>
+            <Text style={{ right: 88, color: '#000000', fontSize: 14, fontWeight: '600', fontFamily: 'FamiljenGrotesk-Regular' }}>Continue with Google</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ right: 10, width: 323, height: 56, borderRadius: 20, backgroundColor: 'rgba(255, 255, 255, 0.35)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16, marginBottom: 0, paddingLeft: 8 }}>
             <Image source={require('../assets/images/apple-icon.png')} style={{ width: 36, height: 36, marginRight: 88, marginLeft: 1 }} />
-            <Text style={{right:78, color: '#000000', fontSize: 14, fontWeight: '600', fontFamily: 'FamiljenGrotesk-Regular' }}>Continue with Apple</Text>
+            <Text style={{ right: 78, color: '#000000', fontSize: 14, fontWeight: '600', fontFamily: 'FamiljenGrotesk-Regular' }}>Continue with Apple</Text>
           </TouchableOpacity>
         </View>
         {/* Footer links - pixel-perfect, centered, flex row */}

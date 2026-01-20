@@ -143,7 +143,7 @@ export default function OnboardingScreen2({ navigation }) {
             activeOpacity={0.85}
           >
             {/* Icon */}
-            <View style={[styles.goalIconWrap, styles.goalMentalIconWrap]}> 
+            <View style={[styles.goalIconWrap, styles.goalMentalIconWrap]}>
               <Image source={fitnessGoals[3].icon} style={[styles.goalIcon, styles.goalMentalIcon]} />
             </View>
             {/* Texts */}
@@ -185,10 +185,10 @@ export default function OnboardingScreen2({ navigation }) {
           ))}
         </View>
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8} onPress={() => navigation.replace('Main')}>
             <Text style={styles.doneBtnText}>Done</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8} onPress={() => navigation.replace('Main')}>
             <Text style={styles.skipBtnText}>Skip</Text>
           </TouchableOpacity>
         </View>
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     marginBottom: 0,
     fontFamily: 'FamiljenGrotesk-Bold',
-  
+
   },
   subtitle: {
     color: 'rgba(255, 255, 255, 1.8)',
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 10,
     marginBottom: 0,
-    marginTop:1,
+    marginTop: 1,
   },
   goalCard: {
     backgroundColor: '#181818',
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 5,
     marginLeft: 15,
-    marginTop:10
+    marginTop: 10
   },
   goalIcon: {
     width: 28,

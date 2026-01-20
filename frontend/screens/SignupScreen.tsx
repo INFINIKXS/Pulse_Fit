@@ -20,12 +20,37 @@ type RootStackParamList = {
   Onboarding1: undefined;
 };
 
+import { AuthContext } from '../context/AuthContext';
+import { Alert, ActivityIndicator } from 'react-native';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 export default function SignupScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const { signUp } = React.useContext(AuthContext)!;
+  const [loading, setLoading] = useState(false);
+
+  const handleSignup = async () => {
+    if (!email || !password || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+    setLoading(true);
+    try {
+      await signUp({ email, password, full_name: 'User' }); // Default name, update later
+      navigation.navigate('Onboarding1');
+    } catch (error: any) {
+      Alert.alert('Signup Failed', error.response?.data?.error || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -59,12 +84,16 @@ export default function SignupScreen({ navigation }: Props) {
             onChangeText={setConfirmPassword}
             style={styles.inputConfirm}
           />
-          <PrimaryButton
-            title="Sign Up"
-            style={styles.signupButton}
-            // textStyle={styles.signupButtonText} // Removed: style does not exist, see TS error
-            onPress={() => navigation.navigate('Onboarding1')}
-          />
+          {loading ? (
+            <ActivityIndicator size="large" color="#00FF00" style={{ position: 'absolute', top: 480, alignSelf: 'center' }} />
+          ) : (
+            <PrimaryButton
+              title="Sign Up"
+              style={styles.signupButton}
+              // textStyle={styles.signupButtonText} // Removed: style does not exist, see TS error
+              onPress={handleSignup}
+            />
+          )}
           <Text style={styles.orText}>Or continue with</Text>
           <View style={{
             position: 'absolute',
@@ -86,14 +115,14 @@ export default function SignupScreen({ navigation }: Props) {
           }} />
           <SocialLoginRow
             style={styles.socialRow}
-            onGooglePress={() => {}}
-            onApplePress={() => {}}
+            onGooglePress={() => { }}
+            onApplePress={() => { }}
           />
           {/* Footer Link */}
-          <Text style={[styles.footerText, {left: 54}]}>
+          <Text style={[styles.footerText, { left: 54 }]}>
             Already have an account?{' '}
-            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Login')} style={{padding: 0, margin: 0}}>
-              <Text style={[styles.footerLink, {padding: 0, margin: 7, height: 30, width: 60, left: -8}]}>Log In</Text>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Login')} style={{ padding: 0, margin: 0 }}>
+              <Text style={[styles.footerLink, { padding: 0, margin: 7, height: 30, width: 60, left: -8 }]}>Log In</Text>
             </TouchableOpacity>
           </Text>
           {/* PulseFit_Logo now handles the logo and text */}
@@ -162,7 +191,7 @@ const styles = StyleSheet.create({
   input: {
     position: 'absolute',
     top: 241,
-    left: 33,  
+    left: 33,
   },
   inputPassword: {
     position: 'absolute',

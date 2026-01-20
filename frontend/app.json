@@ -1,6 +1,20 @@
 {
-  "name": "main",
   "expo": {
-    "slug": "main"
+    "name": "Pulse Fit",
+    "slug": "pulse-fit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "ios": {
+      "supportsTablet": true
+    }
   }
 }
