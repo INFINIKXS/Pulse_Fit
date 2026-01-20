@@ -1,8 +1,9 @@
 // ...existing code...
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import DropdownPicker from '../components/DropdownPicker';
 import BreadcrumbMenu from '../components/BreadcrumbMenu';
+import api from '../services/api';
 
 // Icon imports (update paths as needed)
 import mentalHealthIcon from '../assets/images/ri_mental-health-fill.png';
@@ -55,6 +56,26 @@ export default function OnboardingScreen2({ navigation }) {
     setAvailability((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
+  };
+
+  const [saving, setSaving] = useState(false);
+
+  const handleComplete = async () => {
+    setSaving(true);
+    try {
+      await api.put('/users/me', {
+        fitness_goals: selectedGoals,
+        environment: environment,
+        availability: availability,
+        onboarding_completed: true,
+      });
+      navigation.replace('Main');
+    } catch (error: any) {
+      Alert.alert('Error', 'Failed to save preferences. Please try again.');
+      console.error('Onboarding save error:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -185,10 +206,10 @@ export default function OnboardingScreen2({ navigation }) {
           ))}
         </View>
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8} onPress={() => navigation.replace('Main')}>
-            <Text style={styles.doneBtnText}>Done</Text>
+          <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8} onPress={handleComplete} disabled={saving}>
+            {saving ? <ActivityIndicator color="#111" /> : <Text style={styles.doneBtnText}>Done</Text>}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8} onPress={() => navigation.replace('Main')}>
+          <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8} onPress={handleComplete} disabled={saving}>
             <Text style={styles.skipBtnText}>Skip</Text>
           </TouchableOpacity>
         </View>
