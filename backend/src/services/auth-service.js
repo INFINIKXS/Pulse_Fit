@@ -42,21 +42,32 @@ module.exports = {
       throw new Error(userTableError.message);
     }
     console.log('User inserted into custom users table:', userInsertData);
-    return { user: { id: userId, email, full_name, age } };
+    // Generate JWT token for the new user (same as login flow)
+    const token = jwt.sign(
+      { userId, email },
+      process.env.JWT_SECRET || 'default-secret-key',
+      { expiresIn: '7d' }
+    );
+    return { token, user: { id: userId, email, full_name, age } };
   },
 
   async login({ email, password }) {
+    console.log('Login attempt for:', email);
     // Sign in user with Supabase Auth
     const { data, error } = await supabaseAdmin.auth.signInWithPassword({
       email,
       password
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.log('Login failed:', error.message);
+      throw new Error(error.message);
+    }
     // Generate JWT (if needed, or use Supabase's)
     const token = data.session && data.session.access_token;
     if (!token) {
       throw new Error('No JWT token returned from Supabase Auth.');
     }
+    console.log('Login successful for user:', data.user?.id);
     // Return a standard structure for frontend/tests
     return {
       token, // <-- JWT for Authorization header

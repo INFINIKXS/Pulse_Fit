@@ -10,6 +10,9 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // Admin client (for server-side operations)
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+// Standard client with anon key (for auth operations like signUp)
+const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+
 // Factory for RLS-compliant user client
 function getUserSupabaseClient(jwt) {
   return createClient(
@@ -27,4 +30,4 @@ function getUserSupabaseClient(jwt) {
   );
 }
 
-module.exports = { supabaseAdmin, getUserSupabaseClient };
+module.exports = { supabaseAdmin, supabaseClient, getUserSupabaseClient };

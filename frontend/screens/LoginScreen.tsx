@@ -34,10 +34,17 @@ export default function LoginScreen({ navigation }: Props) {
     setLoading(true);
     try {
       await signIn(email, password);
-      // Navigation is handled by AuthContext state change (usually) 
-      // or we can manually navigate if the auth state doesn't auto-redirect
+      // Navigate to main app after successful login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' as never }],
+      });
     } catch (error: any) {
-      Alert.alert('Login Failed', error.response?.data?.error || 'Something went wrong');
+      const errorMessage = error.response?.data?.error?.message
+        || error.response?.data?.error
+        || error.message
+        || 'Something went wrong';
+      Alert.alert('Login Failed', String(errorMessage));
     } finally {
       setLoading(false);
     }

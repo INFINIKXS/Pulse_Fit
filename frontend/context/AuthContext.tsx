@@ -22,7 +22,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(true);
         try {
             const response = await api.post('/auth/login', { email, password });
-            const { token, user } = response.data;
+            // Backend returns { success, data: { token, user } }
+            const { token, user } = response.data.data;
 
             setUserToken(token);
             setUserInfo(user);
@@ -40,12 +41,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(true);
         try {
             const response = await api.post('/auth/register', data);
-            const { token, user } = response.data;
+            // Backend returns { success, data: { token, user } }
+            const { token, user } = response.data.data;
 
-            setUserToken(token);
-            setUserInfo(user);
-            await SecureStore.setItemAsync('userToken', token);
-            await SecureStore.setItemAsync('userInfo', JSON.stringify(user));
+            if (token) {
+                setUserToken(token);
+                await SecureStore.setItemAsync('userToken', token);
+            }
+            if (user) {
+                setUserInfo(user);
+                await SecureStore.setItemAsync('userInfo', JSON.stringify(user));
+            }
         } catch (error) {
             console.error('Sign up error:', error);
             throw error;

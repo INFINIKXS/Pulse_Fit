@@ -37,6 +37,10 @@ export default function SignupScreen({ navigation }: Props) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters');
+      return;
+    }
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
@@ -46,7 +50,12 @@ export default function SignupScreen({ navigation }: Props) {
       await signUp({ email, password, full_name: 'User' }); // Default name, update later
       navigation.navigate('Onboarding1');
     } catch (error: any) {
-      Alert.alert('Signup Failed', error.response?.data?.error || 'Something went wrong');
+      // Handle validation errors from backend
+      const errorMessage = error.response?.data?.error?.message
+        || error.response?.data?.error?.details?.[0]?.msg
+        || error.response?.data?.error
+        || 'Something went wrong';
+      Alert.alert('Signup Failed', errorMessage);
     } finally {
       setLoading(false);
     }
