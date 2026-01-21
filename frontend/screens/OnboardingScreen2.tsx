@@ -112,7 +112,7 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
             <View style={{ flex: 1, gap: vs(15) }}>
               {/* Build Muscle */}
               <TouchableOpacity
-                style={[styles.card, { height: vs(141), borderRadius: RADIUS, padding: CARD_PADDING }, isSelected('muscle') && styles.cardSelected]}
+                style={[styles.card, { height: vs(141), borderRadius: RADIUS, paddingLeft: s(14), paddingTop: vs(10), paddingRight: s(14), paddingBottom: vs(14) }, isSelected('muscle') && styles.cardSelected]}
                 onPress={() => toggleGoal('muscle')}
                 activeOpacity={0.85}
               >
@@ -121,11 +121,11 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
                     <Image source={muscleIcon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
                   </View>
                   <View style={{ marginLeft: s(9) }}>
-                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Build</Text>
-                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Muscle</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(22) }}>Build</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(22) }}>Muscle</Text>
                   </View>
                 </View>
-                <Text style={{ color: '#FFF', fontSize: ms(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(16), marginTop: s(8), textAlign: 'left' }}>Increase strength and muscle mass.</Text>
+                <Text style={{ color: '#FFF', fontSize: vs(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: vs(16), marginTop: s(4), textAlign: 'left' }}>Increase strength and{'\n'}muscle mass.</Text>
                 <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected('muscle') && styles.checkboxChecked]}>
                   {isSelected('muscle') && <Text style={styles.checkmark}>✓</Text>}
                 </View>
@@ -133,7 +133,7 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
 
               {/* Improve Flexibility */}
               <TouchableOpacity
-                style={[styles.card, { height: vs(135), borderRadius: RADIUS, padding: CARD_PADDING }, isSelected('yoga') && styles.cardSelected]}
+                style={[styles.card, { height: vs(135), borderRadius: RADIUS, paddingLeft: s(14), paddingTop: vs(10), paddingRight: s(14), paddingBottom: vs(14) }, isSelected('yoga') && styles.cardSelected]}
                 onPress={() => toggleGoal('yoga')}
                 activeOpacity={0.85}
               >
@@ -142,11 +142,11 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
                     <Image source={yogaIcon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
                   </View>
                   <View style={{ marginLeft: s(9) }}>
-                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Improve</Text>
-                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Flexibility</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(22) }}>Improve</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(22) }}>Flexibility</Text>
                   </View>
                 </View>
-                <Text style={{ color: '#FFF', fontSize: ms(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(16), marginTop: s(8), textAlign: 'left' }}>Enhance mobility and prevent injuries</Text>
+                <Text style={{ color: '#FFF', fontSize: vs(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: vs(16), marginTop: s(4), textAlign: 'left' }}>Enhance mobility and{'\n'}prevent injuries</Text>
                 <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected('yoga') && styles.checkboxChecked]}>
                   {isSelected('yoga') && <Text style={styles.checkmark}>✓</Text>}
                 </View>
@@ -156,7 +156,7 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
             {/* Right Column (Lane 2) - Lose Weight (tall card) */}
             <View style={{ flex: 1 }}>
               <TouchableOpacity
-                style={[styles.card, { height: vs(141) + vs(15) + vs(135), borderRadius: RADIUS, padding: CARD_PADDING }, isSelected('weight') && styles.cardSelected]}
+                style={[styles.card, { height: vs(141) + vs(15) + vs(135), borderRadius: RADIUS, paddingLeft: s(14), paddingTop: vs(10), paddingRight: s(14), paddingBottom: vs(14) }, isSelected('weight') && styles.cardSelected]}
                 onPress={() => toggleGoal('weight')}
                 activeOpacity={0.85}
               >
@@ -165,11 +165,11 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
                     <Image source={bodyWeightIcon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
                   </View>
                   <View style={{ marginLeft: s(9) }}>
-                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Loose</Text>
-                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Weight</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(22) }}>Loose</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(22) }}>Weight</Text>
                   </View>
                 </View>
-                <Text style={{ color: '#FFF', fontSize: ms(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(16), marginTop: s(8), textAlign: 'left' }}>Burn fat and improve cardiovascular health with our cardio programs and other workout programs tailored for this goal.</Text>
+                <Text style={{ color: '#FFF', fontSize: vs(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: vs(16), marginTop: s(4), textAlign: 'left' }}>Burn fat and improve cardiovascular health with our cardio programs and other workout programs tailored for this goal.</Text>
                 <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected('weight') && styles.checkboxChecked]}>
                   {isSelected('weight') && <Text style={styles.checkmark}>✓</Text>}
                 </View>
@@ -210,22 +210,21 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
               {/* Title - proportional: 0.225 of 80dp height */}
               <Text style={{
                 color: '#FFF',
-                fontSize: vs(80) * 0.2,
-                fontWeight: '500',
-                fontFamily: 'FamiljenGrotesk-Medium',
-                lineHeight: (vs(80) * 0.2) * 1.25,
+                fontSize: vs(80) * 0.2125,
+                fontFamily: 'FamiljenGrotesk-Regular',
+                lineHeight: (vs(80) * 0.2125) * 1.25,
                 position: 'absolute',
                 left: s(60),
                 top: vs(9),
               }}>Improve Mental Wellness</Text>
 
-              {/* Subtext - proportional: 0.2 of 80dp height */}
+              {/* Subtext - proportional: 0.15 of 80dp height (matches 12sp) */}
               <Text style={{
                 color: '#FFF',
-                fontSize: vs(80) * 0.2,
+                fontSize: vs(80) * 0.15,
                 opacity: 0.5,
                 fontFamily: 'FamiljenGrotesk-Regular',
-                lineHeight: (vs(80) * 0.2) * 1.25,
+                lineHeight: (vs(80) * 0.15) * 1.25,
                 position: 'absolute',
                 left: s(60),
                 top: vs(34),
