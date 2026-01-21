@@ -57,19 +57,19 @@ export default function DropdownPicker({
   return (
     <View style={[styles.pickerContainer, style]}>
       <Text style={styles.label}>{label}</Text>
-      <View style={styles.pickerButton}>
-        <Text style={selectedValue ? [styles.pickerButtonText, dropdownTextStyle] : [styles.pickerButtonText, dropdownTextStyle, {opacity: 0.5}] }>
+      <TouchableOpacity
+        style={styles.pickerButton}
+        onPress={() => setIsOpen(true)}
+        activeOpacity={0.7}
+      >
+        <Text style={selectedValue ? [styles.pickerButtonText, dropdownTextStyle] : [styles.pickerButtonText, dropdownTextStyle, { opacity: 0.5 }]}>
           {selectedValue || ''}
         </Text>
-        <TouchableOpacity
-          style={{ position: 'relative', width: 46, height: 46, alignItems: 'center', justifyContent: 'center', marginRight: -8, marginLeft: 8 }}
-          onPress={() => setIsOpen(true)}
-          activeOpacity={0.7}
-        >
+        <View style={{ position: 'relative', width: 46, height: 46, alignItems: 'center', justifyContent: 'center', marginRight: -8, marginLeft: 8 }}>
           <View style={{ position: 'absolute', width: 32, height: 32, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.35)', zIndex: 1 }} />
           <Image source={chevronDownIcon} style={[styles.pickerIcon, { zIndex: 2 }]} />
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
 
 
       <Modal
@@ -103,12 +103,12 @@ export default function DropdownPicker({
         animationType="fade"
         onRequestClose={() => setShowCustomModal(false)}
       >
-        <View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.5)'}}>
-          <View style={{backgroundColor:'#222',padding:24,borderRadius:20,width:280, alignItems:'center'}}>
-            <Text style={{color:'#fff',fontSize:16,marginBottom:12}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ backgroundColor: '#222', padding: 24, borderRadius: 20, width: 280, alignItems: 'center' }}>
+            <Text style={{ color: '#fff', fontSize: 16, marginBottom: 12 }}>
               {label === 'Height' ? 'Enter your height (cm)' : label === 'Weight' ? 'Enter your weight (kg)' : 'Enter value'}
             </Text>
-            <View style={{width:'100%'}}>
+            <View style={{ width: '100%' }}>
               <TextInput
                 style={{
                   backgroundColor: '#333',
@@ -130,12 +130,12 @@ export default function DropdownPicker({
                 autoFocus
               />
             </View>
-            <View style={{flexDirection:'row',justifyContent:'flex-end',width:'100%'}}>
-              <TouchableOpacity onPress={()=>setShowCustomModal(false)} style={{marginRight:16}}>
-                <Text style={{color:'#aaa',fontSize:16}}>Cancel</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '100%' }}>
+              <TouchableOpacity onPress={() => setShowCustomModal(false)} style={{ marginRight: 16 }}>
+                <Text style={{ color: '#aaa', fontSize: 16 }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleCustomSave}>
-                <Text style={{color:'#00FF00',fontSize:16}}>Save</Text>
+                <Text style={{ color: '#00FF00', fontSize: 16 }}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     height: 53,
     borderRadius: 20,
     paddingHorizontal: 20,
-    bottom:15,
+    bottom: 15,
 
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
     fontFamily: 'FamiljenGrotesk-Regular',

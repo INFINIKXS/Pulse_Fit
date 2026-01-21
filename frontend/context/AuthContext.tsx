@@ -6,7 +6,7 @@ interface AuthContextType {
     userToken: string | null;
     isLoading: boolean;
     userInfo: any | null;
-    signIn: (email: string, password: string) => Promise<void>;
+    signIn: (email: string, password: string) => Promise<any>;
     signUp: (data: any) => Promise<void>;
     signOut: () => Promise<void>;
 }
@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUserInfo(user);
             await SecureStore.setItemAsync('userToken', token);
             await SecureStore.setItemAsync('userInfo', JSON.stringify(user));
+            return user;
         } catch (error) {
             console.error('Sign in error:', error);
             throw error;

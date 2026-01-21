@@ -33,12 +33,19 @@ export default function LoginScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      await signIn(email, password);
-      // Navigate to main app after successful login
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' as never }],
-      });
+      const user = await signIn(email, password);
+
+      if (user?.onboarding_completed) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' as never }],
+        });
+      } else {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Onboarding1' as never }],
+        });
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.error?.message
         || error.response?.data?.error

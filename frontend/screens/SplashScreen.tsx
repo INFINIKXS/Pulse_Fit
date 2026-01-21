@@ -8,7 +8,7 @@ import api from '../services/api';
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen({ navigation }) {
-    const { isLoading, userToken } = useContext(AuthContext)!;
+    const { isLoading, userToken, signOut } = useContext(AuthContext)!;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
     const [animationDone, setAnimationDone] = useState(false);
@@ -54,10 +54,16 @@ export default function SplashScreen({ navigation }) {
                     // User exists but hasn't completed onboarding
                     navigation.replace('Onboarding1');
                 }
-            } catch (error) {
-                // If we can't fetch profile, send to onboarding to be safe
+            } catch (error: any) {
                 console.error('Failed to fetch profile:', error);
-                navigation.replace('Onboarding1');
+                if (error.response?.status === 401) {
+                    await signOut();
+                    navigation.replace('Login');
+                } else {
+                    // If we can't fetch profile for other reasons, send to onboarding logic or retry
+                    // For now keeping original fallback but consider error handling
+                    navigation.replace('Onboarding1');
+                }
             }
         } else {
             navigation.replace('Login');
