@@ -1,4 +1,3 @@
-Markdown
 ---
 
 name: react-native-pixel-perfect

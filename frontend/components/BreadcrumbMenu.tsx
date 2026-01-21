@@ -1,60 +1,32 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-// If you don't have a single icon, you can build it with Views:
-export default function BreadcrumbMenu() {
+const editableLine = require('../assets/images/Editable-line.png');
+
+interface BreadcrumbMenuProps {
+  onPress?: () => void;
+}
+
+export default function BreadcrumbMenu({ onPress }: BreadcrumbMenuProps) {
   return (
-    <View style={styles.menuWrap}>
-      <View style={styles.dotRow}>
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-      </View>
-      <View style={styles.lineRow}>
-        <View style={styles.line} />
-        <View style={styles.line} />
-        <View style={styles.line} />
-      </View>
-    </View>
+    <TouchableOpacity style={styles.menuWrap} onPress={onPress}>
+      <Image source={editableLine} style={styles.lineImage} resizeMode="contain" />
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   menuWrap: {
-    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#181818',
-    borderRadius: 12,
-    padding: 8,
-    width: 54,
-    height: 38,
     justifyContent: 'center',
+    width: 32, // Match layout width
+    height: 32, // Match layout height
+    // Removed background/padding if it's just the icon, or keeping it if it's a wrapper.
+    // Assuming wrapper is not needed if the image is the component.
+    // But keeping empty wrapper for positioning if needed, or transparent.
   },
-  dotRow: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 22,
-    marginRight: 6,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#00FF00',
-    marginVertical: 1,
-  },
-  lineRow: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 22,
-  },
-  line: {
-    width: 18,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: '#00FF00',
-    marginVertical: 2,
-  },
+  lineImage: {
+    width: 32,
+    height: 32,
+  }
 });
