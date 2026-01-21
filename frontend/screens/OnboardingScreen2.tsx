@@ -1,216 +1,300 @@
-// ...existing code...
+// OnboardingScreen2.tsx - Pixel-perfect layout using dynamic scaling hook
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import DropdownPicker from '../components/DropdownPicker';
-import BreadcrumbMenu from '../components/BreadcrumbMenu';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+  StatusBar,
+  Platform
+} from 'react-native';
 import api from '../services/api';
+import BreadcrumbMenu from '../components/BreadcrumbMenu';
+import { useScaling } from '../utils/scaling';
 
-// Icon imports (update paths as needed)
+// Icon imports
 import mentalHealthIcon from '../assets/images/ri_mental-health-fill.png';
 import bodyWeightIcon from '../assets/images/hugeicons_body-weight.png';
 import muscleIcon from '../assets/images/hugeicons_body-part-muscle.png';
 import yogaIcon from '../assets/images/grommet-icons_yoga.png';
 
-const fitnessGoals = [
-  {
-    key: 'muscle',
-    label: 'Build Muscle',
-    desc: 'Increase strength and muscle mass.',
-    icon: muscleIcon,
-  },
-  {
-    key: 'weight',
-    label: 'Loose Weight',
-    desc: 'Burn fat and improve cardiovascular health with our cardio programs and other workout programs tailored for this goal.',
-    icon: bodyWeightIcon,
-  },
-  {
-    key: 'yoga',
-    label: 'Improve Flexibility',
-    desc: 'Enhance mobility and prevent injuries',
-    icon: yogaIcon,
-  },
-  {
-    key: 'mental',
-    label: 'Improve Mental Wellness',
-    desc: 'Use movement to reduce stress',
-    icon: mentalHealthIcon,
-  },
-];
-
 const environments = ['Home', 'Gym', 'Outdoor'];
 const days = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
 
-export default function OnboardingScreen2({ navigation }) {
-  const [selectedGoals, setSelectedGoals] = useState([]);
+export default function OnboardingScreen2({ navigation }: { navigation: any }) {
+  // Dynamic scaling hook - updates on screen resize/orientation change
+  const { s, vs, ms } = useScaling();
+
+  // Design constants using dynamic scaling
+  const PADDING = s(20);
+  const GAP = s(18);
+  const CARD_PADDING = s(16);
+  const ICON_SIZE = s(30);
+  const ICON_CIRCLE = s(50);
+  const CHECKBOX = s(25);
+  const RADIUS = s(30);
+
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [environment, setEnvironment] = useState('Home');
-  const [availability, setAvailability] = useState([]);
-
-  const toggleGoal = (key) => {
-    setSelectedGoals((prev) =>
-      prev.includes(key) ? prev.filter((g) => g !== key) : [...prev, key]
-    );
-  };
-
-  const toggleDay = (day) => {
-    setAvailability((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
-
+  const [availability, setAvailability] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+
+  const toggleGoal = (key: string) => setSelectedGoals(prev => prev.includes(key) ? prev.filter(g => g !== key) : [...prev, key]);
+  const toggleDay = (day: string) => setAvailability(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
+  const cycleEnv = () => setEnvironment(environments[(environments.indexOf(environment) + 1) % 3]);
 
   const handleComplete = async () => {
     setSaving(true);
     try {
-      await api.put('/users/me', {
-        fitness_goals: selectedGoals,
-        environment: environment,
-        availability: availability,
-        onboarding_completed: true,
-      });
+      await api.put('/users/me', { fitness_goals: selectedGoals, environment, availability, onboarding_completed: true });
       navigation.replace('Main');
-    } catch (error: any) {
-      Alert.alert('Error', 'Failed to save preferences. Please try again.');
-      console.error('Onboarding save error:', error);
+    } catch (e) {
+      Alert.alert('Error', 'Failed to save preferences.');
     } finally {
       setSaving(false);
     }
   };
 
+  const isSelected = (key: string) => selectedGoals.includes(key);
+
+  // Card component with flex-based sizing
+  const GoalCard = ({ id, title1, title2, desc, icon, cardFlex }: any) => (
+    <TouchableOpacity
+      style={[
+        styles.card,
+        {
+          flex: cardFlex || 1,
+          borderRadius: RADIUS,
+          padding: CARD_PADDING
+        },
+        isSelected(id) && styles.cardSelected
+      ]}
+      onPress={() => toggleGoal(id)}
+      activeOpacity={0.85}
+    >
+      <View style={styles.cardHeader}>
+        <View style={[styles.iconCircle, { width: ICON_CIRCLE, height: ICON_CIRCLE }]}>
+          <Image source={icon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
+        </View>
+        <View style={{ marginLeft: s(9) }}>
+          <Text style={{ color: '#FFF', fontSize: ms(20), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>{title1}</Text>
+          <Text style={{ color: '#FFF', fontSize: ms(20), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>{title2}</Text>
+        </View>
+      </View>
+      <Text style={{ color: '#FFF', fontSize: ms(16), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(20), marginTop: s(6) }}>{desc}</Text>
+      <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected(id) && styles.checkboxChecked]}>
+        {isSelected(id) && <Text style={styles.checkmark}>✓</Text>}
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Text style={styles.title}>What’s Your Fitness Goal?</Text>
-        <Text style={styles.subtitle}>
-          Choose one or more goals to help us create your perfect workout plan.
-        </Text>
-        {/* Top row: Build Muscle (left), Loose Weight (right) */}
-        <View style={styles.goalsRow}>
-          {/* Build Muscle Card - match image layout */}
-          <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardMuscle, selectedGoals.includes('muscle') && styles.goalCardSelected]}
-            onPress={() => toggleGoal('muscle')}
-            activeOpacity={0.85}
-          >
-            <View style={styles.goalCardHeaderRow}>
-              <View style={styles.goalIconWrap}>
-                <Image source={fitnessGoals[0].icon} style={[styles.goalIcon, selectedGoals.includes('muscle') && styles.goalIconSelected]} />
-              </View>
-              <View style={styles.goalTitleWrap}>
-                <Text style={styles.goalTitle}>Build{"\n"}Muscle</Text>
-              </View>
-            </View>
-            <Text style={styles.goalDesc}>Increase strength and muscle mass.</Text>
-            <View
-              style={[styles.checkbox, selectedGoals.includes('muscle') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('muscle') && <View style={styles.checkboxInner} />}
-            </View>
-          </TouchableOpacity>
-          {/* Loose Weight Card - match image layout */}
-          <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardWeight, selectedGoals.includes('weight') && styles.goalCardSelected]}
-            onPress={() => toggleGoal('weight')}
-            activeOpacity={0.85}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 2 }}>
-              <View style={styles.goalIconWrap}>
-                <Image source={fitnessGoals[1].icon} style={[styles.goalIcon, selectedGoals.includes('weight') && styles.goalIconSelected]} />
-              </View>
-              <View style={styles.goalTitleWrap}>
-                <Text style={styles.goalTitle}>Loose{"\n"}Weight</Text>
-              </View>
-            </View>
-            <Text style={styles.goalDesc}>Burn fat and improve cardiovascular health with our cardio programs and other workout programs tailored for this goal.</Text>
-            <View
-              style={[styles.checkbox, selectedGoals.includes('weight') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('weight') && <View style={styles.checkboxInner} />}
-            </View>
-          </TouchableOpacity>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: vs(30) }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* HEADER - with proper top spacing */}
+        <View style={{ paddingHorizontal: PADDING, paddingTop: vs(50), paddingBottom: vs(20) }}>
+          <Text style={{ color: '#FFF', fontSize: ms(25), fontWeight: '700', fontFamily: 'FamiljenGrotesk-Bold' }}>What's Your Fitness Goal?</Text>
+          <Text style={{ color: '#FFF', fontSize: ms(14), fontFamily: 'FamiljenGrotesk-Regular', marginTop: s(4) }}>Choose one or more goals to help us create your perfect workout plan.</Text>
         </View>
-        {/* Second row: Improve Flexibility (left), empty (right) */}
-        <View style={styles.goalsRow}>
-          {/* Improve Flexibility Card - match image layout */}
-          <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardYoga, selectedGoals.includes('yoga') && styles.goalCardSelected]}
-            onPress={() => toggleGoal('yoga')}
-            activeOpacity={0.85}
-          >
-            <View style={styles.goalCardHeaderRow}>
-              <View style={styles.goalIconWrap}>
-                <Image source={fitnessGoals[2].icon} style={[styles.goalIcon, selectedGoals.includes('yoga') && styles.goalIconSelected]} />
-              </View>
-              <View style={styles.goalTitleWrap}>
-                <Text style={styles.goalTitle}>Improve{"\n"}Flexibility</Text>
-              </View>
+
+        {/* GOALS GRID - Two column masonry layout */}
+        <View style={{ paddingHorizontal: PADDING }}>
+          <View style={{ flexDirection: 'row', gap: GAP }}>
+            {/* Left Column (Lane 1) - Build Muscle + Improve Flexibility */}
+            <View style={{ flex: 1, gap: vs(15) }}>
+              {/* Build Muscle */}
+              <TouchableOpacity
+                style={[styles.card, { height: vs(141), borderRadius: RADIUS, padding: CARD_PADDING }, isSelected('muscle') && styles.cardSelected]}
+                onPress={() => toggleGoal('muscle')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconCircle, { width: ICON_CIRCLE, height: ICON_CIRCLE }]}>
+                    <Image source={muscleIcon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
+                  </View>
+                  <View style={{ marginLeft: s(9) }}>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Build</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Muscle</Text>
+                  </View>
+                </View>
+                <Text style={{ color: '#FFF', fontSize: ms(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(16), marginTop: s(8), textAlign: 'left' }}>Increase strength and muscle mass.</Text>
+                <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected('muscle') && styles.checkboxChecked]}>
+                  {isSelected('muscle') && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+              </TouchableOpacity>
+
+              {/* Improve Flexibility */}
+              <TouchableOpacity
+                style={[styles.card, { height: vs(135), borderRadius: RADIUS, padding: CARD_PADDING }, isSelected('yoga') && styles.cardSelected]}
+                onPress={() => toggleGoal('yoga')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconCircle, { width: ICON_CIRCLE, height: ICON_CIRCLE }]}>
+                    <Image source={yogaIcon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
+                  </View>
+                  <View style={{ marginLeft: s(9) }}>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Improve</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Flexibility</Text>
+                  </View>
+                </View>
+                <Text style={{ color: '#FFF', fontSize: ms(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(16), marginTop: s(8), textAlign: 'left' }}>Enhance mobility and prevent injuries</Text>
+                <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected('yoga') && styles.checkboxChecked]}>
+                  {isSelected('yoga') && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+              </TouchableOpacity>
             </View>
-            <Text style={[styles.goalDesc, styles.goalDescYoga]}>Enhance mobility and prevent injuries</Text>
-            <View
-              style={[styles.checkbox, selectedGoals.includes('yoga') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('yoga') && <View style={styles.checkboxInner} />}
+
+            {/* Right Column (Lane 2) - Lose Weight (tall card) */}
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                style={[styles.card, { height: vs(141) + vs(15) + vs(135), borderRadius: RADIUS, padding: CARD_PADDING }, isSelected('weight') && styles.cardSelected]}
+                onPress={() => toggleGoal('weight')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconCircle, { width: ICON_CIRCLE, height: ICON_CIRCLE }]}>
+                    <Image source={bodyWeightIcon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
+                  </View>
+                  <View style={{ marginLeft: s(9) }}>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Loose</Text>
+                    <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium', lineHeight: ms(22) }}>Weight</Text>
+                  </View>
+                </View>
+                <Text style={{ color: '#FFF', fontSize: ms(12), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(16), marginTop: s(8), textAlign: 'left' }}>Burn fat and improve cardiovascular health with our cardio programs and other workout programs tailored for this goal.</Text>
+                <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected('weight') && styles.checkboxChecked]}>
+                  {isSelected('weight') && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-          <View style={styles.goalCardSpacer} />
-        </View>
-        {/* Third row: Improve Mental Wellness (left, wide), breadcrumb menu (right) */}
-        <View style={styles.goalsRowMental}>
-          {/* Improve Mental Wellness Card - pixel-perfect layout */}
-          <TouchableOpacity
-            style={[styles.goalCard, styles.goalCardMental, selectedGoals.includes('mental') && styles.goalCardSelected, styles.goalMentalCardRow]}
-            onPress={() => toggleGoal('mental')}
-            activeOpacity={0.85}
-          >
-            {/* Icon */}
-            <View style={[styles.goalIconWrap, styles.goalMentalIconWrap]}>
-              <Image source={fitnessGoals[3].icon} style={[styles.goalIcon, styles.goalMentalIcon]} />
-            </View>
-            {/* Texts */}
-            <View style={styles.goalMentalTextWrap}>
-              <Text style={styles.goalTitle}>Improve Mental Wellness</Text>
-              <Text style={styles.goalDesc}>Use movement to{"\n"}reduce stress</Text>
-            </View>
-            {/* Checkbox */}
-            <View
-              style={[styles.checkbox, styles.mentalCheckbox, selectedGoals.includes('mental') && styles.checkboxChecked]}
-            >
-              {selectedGoals.includes('mental') && <View style={styles.checkboxInner} />}
-            </View>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.envRow}>
-          <Text style={styles.envLabel}>Environment</Text>
-          <DropdownPicker
-            label=""
-            data={environments}
-            selectedValue={environment}
-            onSelect={setEnvironment}
-            style={styles.envDropdown}
-            dropdownTextStyle={styles.envDropdownText}
-            dropdownStyle={styles.envDropdownModal}
-          />
-        </View>
-        <Text style={styles.availLabel}>Availability</Text>
-        <View style={styles.daysRow}>
-          {days.map((day) => (
+          </View>
+
+          {/* Mental Wellness Row - Card expanded to fill available space */}
+          <View style={{ flexDirection: 'row', gap: s(15), marginTop: vs(15), alignItems: 'flex-start' }}>
             <TouchableOpacity
-              key={day}
-              style={[styles.dayBtn, availability.includes(day) && styles.dayBtnSelected]}
-              onPress={() => toggleDay(day)}
-              activeOpacity={0.7}
+              style={[
+                styles.card,
+                {
+                  flex: 1,
+                  height: vs(80),
+                  borderRadius: s(30),
+                  position: 'relative',
+                },
+                isSelected('mental') && styles.cardSelected
+              ]}
+              onPress={() => toggleGoal('mental')}
+              activeOpacity={0.85}
             >
-              <Text style={[styles.dayBtnText, availability.includes(day) && styles.dayBtnTextSelected]}>{day}</Text>
+              {/* Icon circle - 45x45dp at left:11, top:9 from card */}
+              <View style={[
+                styles.iconCircle,
+                {
+                  width: s(45),
+                  height: s(45),
+                  position: 'absolute',
+                  left: s(11),
+                  top: vs(9),
+                }
+              ]}>
+                <Image source={mentalHealthIcon} style={[styles.icon, { width: s(28), height: s(28) }]} />
+              </View>
+
+              {/* Title - proportional: 0.225 of 80dp height */}
+              <Text style={{
+                color: '#FFF',
+                fontSize: vs(80) * 0.2,
+                fontWeight: '500',
+                fontFamily: 'FamiljenGrotesk-Medium',
+                lineHeight: (vs(80) * 0.2) * 1.25,
+                position: 'absolute',
+                left: s(60),
+                top: vs(9),
+              }}>Improve Mental Wellness</Text>
+
+              {/* Subtext - proportional: 0.2 of 80dp height */}
+              <Text style={{
+                color: '#FFF',
+                fontSize: vs(80) * 0.2,
+                opacity: 0.5,
+                fontFamily: 'FamiljenGrotesk-Regular',
+                lineHeight: (vs(80) * 0.2) * 1.25,
+                position: 'absolute',
+                left: s(60),
+                top: vs(34),
+                width: s(148),
+              }}>Use movement to{'\n'}reduce stress</Text>
+
+              {/* Checkbox - 25x25dp at left:221 (right:26), top:45 (bottom:10) from card */}
+              <View style={[
+                styles.checkbox,
+                {
+                  width: s(25),
+                  height: s(25),
+                  borderRadius: s(5),
+                  position: 'absolute',
+                  right: s(20),
+                  top: vs(45),
+                },
+                isSelected('mental') && styles.checkboxChecked
+              ]}>
+                {isSelected('mental') && <Text style={styles.checkmark}>✓</Text>}
+              </View>
             </TouchableOpacity>
-          ))}
+
+            {/* Breadcrumb - 68x63dp */}
+            <View style={{
+              width: s(68),
+              height: vs(63), // XML says 63dp height
+              backgroundColor: '#1A1A1A',
+              borderRadius: s(25),
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <BreadcrumbMenu />
+            </View>
+          </View>
         </View>
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.doneBtn} activeOpacity={0.8} onPress={handleComplete} disabled={saving}>
-            {saving ? <ActivityIndicator color="#111" /> : <Text style={styles.doneBtnText}>Done</Text>}
+
+        {/* ENVIRONMENT */}
+        <View style={{ flexDirection: 'row', paddingHorizontal: PADDING, alignItems: 'center', justifyContent: 'space-between', marginTop: vs(25) }}>
+          <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '700', fontFamily: 'FamiljenGrotesk-Bold' }}>Environment</Text>
+          <TouchableOpacity onPress={cycleEnv} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ color: '#7AC530', fontSize: ms(13), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>{environment}</Text>
+            <Text style={{ color: '#7AC530', fontSize: ms(13), marginLeft: 6 }}>∨</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.skipBtn} activeOpacity={0.8} onPress={handleComplete} disabled={saving}>
-            <Text style={styles.skipBtnText}>Skip</Text>
+        </View>
+
+        {/* AVAILABILITY */}
+        <View style={{ marginTop: vs(25) }}>
+          <Text style={{ color: '#FFF', fontSize: ms(18), fontWeight: '700', fontFamily: 'FamiljenGrotesk-Bold', marginLeft: PADDING, marginBottom: s(8) }}>Availability</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: PADDING }}>
+            {days.map(day => (
+              <TouchableOpacity
+                key={day}
+                style={[styles.dayBtn, { paddingHorizontal: s(16), paddingVertical: s(10), borderRadius: s(18), marginRight: s(8) }, availability.includes(day) && styles.dayBtnSelected]}
+                onPress={() => toggleDay(day)}
+              >
+                <Text style={{ color: '#7AC530', fontSize: ms(16), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>{day}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* BUTTONS */}
+        <View style={{ paddingHorizontal: PADDING, gap: s(14), flexDirection: 'row', marginTop: vs(40) }}>
+          <TouchableOpacity style={[styles.doneBtn, { height: s(45), borderRadius: s(20) }]} onPress={handleComplete} disabled={saving}>
+            {saving ? <ActivityIndicator color="#FFF" /> : <Text style={{ color: '#FFF', fontSize: ms(20), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>Done</Text>}
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.skipBtn, { height: s(45), borderRadius: s(20) }]} onPress={handleComplete} disabled={saving}>
+            <Text style={{ color: '#00B600', fontSize: ms(20), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>Skip</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -219,306 +303,92 @@ export default function OnboardingScreen2({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  // 1. Screen container
   container: {
     flex: 1,
-    backgroundColor: '#111',
-    paddingTop: 32,
-    paddingHorizontal: 0,
+    backgroundColor: '#060606',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 50,
   },
-
-  // 2. Title and subtitle
-  title: {
-    color: '#FFFFFF',
-    fontSize: 25,
-    fontWeight: 500,
-    marginTop: 20,
-    marginLeft: 15,
-    marginBottom: 0,
-    fontFamily: 'FamiljenGrotesk-Bold',
-
+  section: {},
+  // Dedicated goals area - contains all 4 goal cards + breadcrumb
+  goalsArea: {
+    flexDirection: 'column',  // Stack top row and bottom row vertically
   },
-  subtitle: {
-    color: 'rgba(255, 255, 255, 1.8)',
-    fontSize: 12,
-    marginLeft: 20,
-    marginBottom: 18,
-    fontFamily: 'FamiljenGrotesk-Regular',
-  },
-
-  // 3. Fitness goal cards grid and rows
-  // 3b. Selected card highlight
-  goalCardSelected: {
-    borderColor: '#00FF00',
-    borderWidth: 2,
-    backgroundColor: '#101d10',
-  },
-  goalsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 12,
-    marginBottom: 6,
-  },
-  goalsRowMental: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 10,
-    marginBottom: 0,
-    marginTop: 1,
-  },
-  goalCard: {
-    backgroundColor: '#181818',
-    borderRadius: 30,
-    marginBottom: 14,
+  card: {
+    backgroundColor: '#1A1A1A',  // Lighter gray for better visibility
     position: 'relative',
-    alignSelf: 'flex-start',
-    // No fixed width or minHeight, each card can be sized individually
   },
-  goalCardMuscle: {
-    width: 157,
-    minHeight: 141,
-  },
-  goalCardWeight: {
-    width: 168,
-    minHeight: 290,
-  },
-  goalCardYoga: {
-    width: 157,
-    minHeight: 141,
-    bottom: 160,
-  },
-  goalCardMental: {
-    paddingRight: 52,
-    marginBottom: 0,
-    height: 80,
-    width: 272,
-    bottom: 170,
-  },
-  // 4. Card header row and icon
-  goalCardHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 2,
-  },
-  goalIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 30,
-    backgroundColor: '#111',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 5,
-    marginLeft: 15,
-    marginTop: 10
-  },
-  goalIcon: {
-    width: 28,
-    height: 28,
-    tintColor: '#00FF00',
-  },
-  goalIconSelected: {
-    tintColor: '#00FF00',
-  },
-
-  // 5. Card text wrappers and text
-  goalTitleWrap: {
-    marginLeft: 8,
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-  },
-  goalTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '500',
-    fontFamily: 'FamiljenGrotesk-Bold',
-    marginBottom: 2,
-    textAlign: 'left',
-    lineHeight: 20,
-  },
-  goalDesc: {
-    color: '#B0B0B0',
-    fontSize: 14,
-    fontFamily: 'FamiljenGrotesk-Regular',
-    marginBottom: 8,
-    marginTop: 0,
-  },
-  goalDescYoga: {
-    color: '#B0B0B0',
-    marginBottom: 18,
-  },
-  goalMentalTextWrap: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-
-  // 6. Special mental card row/icon
-  goalMentalCardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    paddingVertical: 0,
-    paddingHorizontal: 6,
-    marginBottom: 0,
-  },
-  goalMentalIconWrap: {
-    marginBottom: 0,
-    marginRight: 8,
-  },
-  goalMentalIcon: {
-    tintColor: '#00FF00',
-  },
-
-  // 7. Card checkboxes
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
+  cardSelected: {
+    borderColor: '#7AC530',
     borderWidth: 2,
-    borderColor: '#B0B0B0',
-    backgroundColor: '#222',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconCircle: {
+    backgroundColor: '#000',
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    tintColor: '#00B600',
+  },
+  checkbox: {
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    right: 12,
-    bottom: 12,
+    right: 14,
+    bottom: 14,
   },
-  checkboxChecked: {
-    borderColor: '#00FF00',
-    backgroundColor: '#101d10',
-  },
-  checkboxInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 3,
-    backgroundColor: '#00FF00',
-  },
-  mentalCheckbox: {
+  checkboxInline: {
     position: 'relative',
     right: undefined,
     bottom: undefined,
-    marginLeft: 12,
-    marginBottom: 0,
-    alignSelf: 'center',
   },
-
-  // 8. Menu icon (if used)
-  menuIcon: {
-    width: 22,
-    height: 22,
-    position: 'absolute',
-    right: 12,
-    top: 12,
-    tintColor: '#00FF00',
+  checkboxChecked: {
+    borderColor: '#FFF',
+    backgroundColor: '#00B600',
   },
-
-  // 9. Environment row and dropdown
-  envRow: {
+  checkmark: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  mentalCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 20,
-    marginBottom: 10,
   },
-  envLabel: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
-    fontFamily: 'FamiljenGrotesk-Bold',
-    marginRight: 10,
+  menuBox: {
+    backgroundColor: '#0C0C0C',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  envDropdown: {
-    width: 110,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: '#191919',
-    marginLeft: 0,
-    marginTop: 0,
-  },
-  envDropdownText: {
-    color: '#00FF00',
-    fontSize: 14,
-    fontFamily: 'FamiljenGrotesk-Regular',
-  },
-  envDropdownModal: {
-    backgroundColor: '#222',
-    borderRadius: 12,
-  },
-
-  // 10. Availability label and days row
-  availLabel: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
-    fontFamily: 'FamiljenGrotesk-Bold',
-    marginLeft: 20,
-    marginTop: 10,
-    marginBottom: 8,
-  },
-  daysRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginLeft: 10,
-    marginBottom: 24,
+  menuLine: {
+    height: 2,
+    backgroundColor: '#00B600',
+    marginVertical: 4,
   },
   dayBtn: {
-    borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#00FF00',
-    backgroundColor: 'transparent',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
+    borderColor: '#7AC530',
   },
   dayBtnSelected: {
-    backgroundColor: '#101d10',
-  },
-  dayBtnText: {
-    color: '#00FF00',
-    fontSize: 14,
-    fontFamily: 'FamiljenGrotesk-Regular',
-  },
-  dayBtnTextSelected: {
-    color: '#fff',
-  },
-
-  // 11. Action buttons row
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginBottom: 24,
+    backgroundColor: 'rgba(122,197,48,0.15)',
   },
   doneBtn: {
     flex: 1,
-    backgroundColor: '#00FF00',
-    borderRadius: 16,
+    backgroundColor: '#00B600',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    marginRight: 10,
-  },
-  doneBtnText: {
-    color: '#111',
-    fontWeight: 'bold',
-    fontSize: 17,
-    fontFamily: 'FamiljenGrotesk-Bold',
   },
   skipBtn: {
     flex: 1,
-    backgroundColor: '#191919',
-    borderRadius: 16,
+    backgroundColor: '#0C0C0C',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    marginLeft: 10,
-  },
-  skipBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 17,
-    fontFamily: 'FamiljenGrotesk-Bold',
   },
 });
