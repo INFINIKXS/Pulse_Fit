@@ -69,7 +69,13 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
   const handleComplete = async () => {
     setSaving(true);
     try {
-      await api.put('/users/me', { fitness_goals: selectedGoals, environment, availability, onboarding_completed: true });
+      await api.put('/users/me', {
+        fitness_goals: selectedGoals,
+        environment,
+        availability,
+        onboarding_completed: true,
+        mental_wellness_goals: selectedMentalOptions
+      });
       navigation.replace('Main');
     } catch (e) {
       Alert.alert('Error', 'Failed to save preferences.');
@@ -114,6 +120,7 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
   return (
     <View style={styles.container}>
       <ScrollView
+        pointerEvents={saving ? 'none' : 'auto'}
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: vs(30) }}
         showsVerticalScrollIndicator={false}

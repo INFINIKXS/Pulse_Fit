@@ -62,7 +62,40 @@ module.exports = {
     try {
       const jwt = req.user && req.user.token;
       const userId = req.user.id;
-      let updates = req.body;
+
+      // Extract specific fields to ensure we only update allowed columns and map data correctly
+      const {
+        full_name,
+        age,
+        gender,
+        height,
+        weight,
+        bio,
+        environment,
+        availability,
+        onboarding_completed,
+        fitness_goals,
+        mental_wellness_goals
+      } = req.body;
+
+      let updates = {};
+      if (full_name !== undefined) updates.full_name = full_name;
+      if (age !== undefined) updates.age = age;
+      if (gender !== undefined) updates.gender = gender;
+      if (height !== undefined) updates.height = height;
+      if (weight !== undefined) updates.weight = weight;
+      if (bio !== undefined) updates.bio = bio;
+      if (environment !== undefined) updates.environment = environment;
+      if (availability !== undefined) updates.availability = availability;
+      if (onboarding_completed !== undefined) updates.onboarding_completed = onboarding_completed;
+
+      // Use frontend field names directly as column names
+      if (fitness_goals !== undefined) updates.fitness_goals = fitness_goals;
+      if (mental_wellness_goals !== undefined) updates.mental_wellness_goals = mental_wellness_goals;
+
+      console.log('UpdateMe Request Body:', JSON.stringify(req.body, null, 2));
+      console.log('Mapped Updates:', JSON.stringify(updates, null, 2));
+
       let avatarPath;
       const supabase = getUserSupabaseClient(jwt);
       if (req.file) {
@@ -80,16 +113,25 @@ module.exports = {
           contentType: file.mimetype
         });
         if (uploadError) {
+          console.error('Avatar upload error:', uploadError);
           return handleApiError(res, { message: 'Avatar upload failed', details: uploadError.message }, 'AVATAR_UPLOAD_FAILED', 500);
         }
         updates.avatar_url = avatarPath;
       }
+
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
         .eq('id', userId)
+        .select()
         .single();
-      if (error) return handleApiError(res, error, 'PROFILE_UPDATE_FAILED', 500, error.details);
+
+
+
+      if (error) {
+        console.error('Supabase update error:', error);
+        return handleApiError(res, error, 'PROFILE_UPDATE_FAILED', 500, error.details);
+      }
       if (!data) return handleApiError(res, { message: 'Profile not found' }, 'PROFILE_NOT_FOUND', 404);
       if (data.avatar_url) {
         data.avatar_signed_url = await getSignedAvatarUrl(data.avatar_url, jwt);

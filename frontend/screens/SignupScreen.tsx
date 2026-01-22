@@ -47,7 +47,7 @@ export default function SignupScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      await signUp({ email, password, full_name: 'User' }); // Default name, update later
+      await signUp({ email, password }); // Profile data collected during onboarding
       navigation.navigate('Onboarding1');
     } catch (error: any) {
       // Handle validation errors from backend

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Animated, View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, Platform, StatusBar as RNStatusBar } from 'react-native';
+import { Animated, View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, Platform, StatusBar as RNStatusBar, KeyboardAvoidingView, Alert, ActivityIndicator } from 'react-native';
 import AuthInputField from '../components/AuthInputField';
 import { StatusBar } from 'expo-status-bar';
 import { useScaling } from '../utils/scaling';
+import api from '../services/api';
 
 // Assume these assets are in the correct path
 import bgImage from '../assets/images/onboardingScreen1.jpg';
@@ -22,6 +23,8 @@ export default function BasicInfoScreen({ navigation }: any) {
   const [height, setHeight] = useState<string | null>(null);
   const [weight, setWeight] = useState<string | null>(null);
   const [warningModalVisible, setWarningModalVisible] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const PADDING = s(24);
   const VERTICAL_SPACING = vs(20);
@@ -43,171 +46,197 @@ export default function BasicInfoScreen({ navigation }: any) {
         <Image source={bgImage} style={styles.backgroundImage} />
         <View style={styles.overlay} />
 
-        <ScrollView
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{ flex: 1 }}
-          contentContainerStyle={{
-            paddingHorizontal: PADDING,
-            paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight! + vs(20) : vs(50),
-            paddingBottom: vs(100)
-          }}
-          showsVerticalScrollIndicator={false}
         >
-          {/* 1. Header */}
-          <View style={{ marginBottom: vs(30) }}>
-            <Text style={[styles.title, { fontSize: ms(25), lineHeight: ms(25) }]}>Basic Info</Text>
-            <Text style={[styles.basicInfoText, { fontSize: ms(11), lineHeight: ms(16), marginTop: vs(10) }]}>
-              Briefly tell us about yourself as you begin fitness journey.
-              Your information is safe and you can always change it later.
-            </Text>
-          </View>
-
-          {/* 2. Profile Picture Upload */}
-          <View style={{ alignItems: 'center', marginBottom: vs(0) }}>
-            <TouchableOpacity style={[styles.profilePicContainer, { width: s(120), height: s(120) }]}>
-              {/* Clipped Background + Image */}
-              <View style={{ flex: 1, width: '100%', borderRadius: s(60), overflow: 'hidden', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.85)', opacity: 1 }}>
-                <Image source={userPlaceholder} style={{ width: s(150), height: s(150) }} resizeMode="cover" />
-              </View>
-
-              {/* Camera Icon - Absolute */}
-              <View style={[styles.cameraIconContainer, { position: 'absolute', bottom: s(5), right: s(5), width: s(30), height: s(30), borderRadius: s(15), zIndex: 10 }]}>
-                <Image source={cameraIcon} style={{ width: s(24), height: s(24), tintColor: '#000000' }} />
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* 3. Form */}
-          <View style={{ gap: vs(17) }}>
-            {/* Name */}
-            <View>
-              <Text style={[styles.label, { fontSize: ms(20), marginBottom: vs(2) }]}>Name</Text>
-              <AuthInputField
-                placeholder=""
-                value={name}
-                onChangeText={setName}
-                style={{ height: vs(52), borderRadius: s(20) }}
-              />
-            </View>
-
-            {/* Age */}
-            <View style={{ marginTop: vs(-10) }}>
-              <Text style={[styles.label, { fontSize: ms(20), lineHeight: ms(25), marginBottom: vs(4) }]}>Age</Text>
-              <AuthInputField
-                placeholder=""
-                value={age}
-                onChangeText={setAge}
-                keyboardType="number-pad"
-                style={{ height: vs(52), borderRadius: s(20) }}
-              />
-            </View>
-
-            {/* Gender */}
-            <View style={{ marginTop: vs(-26) }}>
-              <Text style={[styles.label, { fontSize: ms(20), lineHeight: ms(25), marginBottom: vs(8) }]}>Gender:</Text>
-              <View style={{ gap: vs(10) }}>
-                <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setGender(prev => prev === 'male' ? null : 'male')}>
-                  <View style={[styles.radioButton, { width: s(18), height: s(18), borderRadius: s(9) }]}>
-                    {gender === 'male' && <View style={[styles.radioButtonSelected, { width: s(12), height: s(12), borderRadius: s(6) }]} />}
-                  </View>
-                  <Text style={[styles.radioLabel, { fontSize: ms(14), marginLeft: s(10) }]}>Male</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setGender(prev => prev === 'female' ? null : 'female')}>
-                  <View style={[styles.radioButton, { width: s(18), height: s(18), borderRadius: s(9) }]}>
-                    {gender === 'female' && <View style={[styles.radioButtonSelected, { width: s(12), height: s(12), borderRadius: s(6) }]} />}
-                  </View>
-                  <Text style={[styles.radioLabel, { fontSize: ms(14), marginLeft: s(10) }]}>Female</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Height */}
-            <View style={{ height: vs(52), zIndex: 2000 }}>
-              <DropdownPicker
-                label="Height"
-                data={heightOptions}
-                selectedValue={height}
-                onSelect={setHeight}
-              />
-            </View>
-
-            {/* Weight */}
-            <View style={{ height: vs(52), zIndex: 1000, marginTop: vs(30) }}>
-              <DropdownPicker
-                label="Weight"
-                data={weightOptions}
-                selectedValue={weight}
-                onSelect={setWeight}
-              />
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* 4. CTA Button (Fixed at bottom) */}
-        <View style={{ position: 'absolute', bottom: vs(30), left: 0, right: 0, alignItems: 'center' }}>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => {
-              const isFormValid = name.trim() !== '' && age.trim() !== '' && gender !== null && height !== null && weight !== null;
-              if (isFormValid) {
-                navigation && navigation.navigate('OnboardingScreen2');
-              } else {
-                setWarningModalVisible(true);
-              }
+          <ScrollView
+            pointerEvents={isNavigating ? 'none' : 'auto'}
+            style={{ flex: 1 }}
+            contentContainerStyle={{
+              paddingHorizontal: PADDING,
+              paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight! + vs(20) : vs(50),
+              paddingBottom: vs(100)
             }}
+            showsVerticalScrollIndicator={false}
           >
-            <Animated.View
-              style={[
-                styles.getStartedButton,
-                {
-                  width: s(330),
-                  height: vs(52),
-                  borderRadius: s(20),
-                  paddingHorizontal: s(30),
-                  transform: [
-                    {
-                      scale: tripleArrowPulse.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 1.045],
-                      }),
-                    },
-                  ],
-                  backgroundColor: tripleArrowPulse.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['#008800', '#00b800'],
-                  }),
-                  shadowOpacity: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.38] }),
-                  shadowRadius: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [6, 18] }),
-                  elevation: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [2, 10] }),
-                },
-              ]}
+            {/* 1. Header */}
+            <View style={{ marginBottom: vs(30) }}>
+              <Text style={[styles.title, { fontSize: ms(25), lineHeight: ms(25) }]}>Basic Info</Text>
+              <Text style={[styles.basicInfoText, { fontSize: ms(11), lineHeight: ms(16), marginTop: vs(10) }]}>
+                Briefly tell us about yourself as you begin fitness journey.
+                Your information is safe and you can always change it later.
+              </Text>
+            </View>
+
+            {/* 2. Profile Picture Upload */}
+            <View style={{ alignItems: 'center', marginBottom: vs(0) }}>
+              <TouchableOpacity style={[styles.profilePicContainer, { width: s(120), height: s(120) }]}>
+                {/* Clipped Background + Image */}
+                <View style={{ flex: 1, width: '100%', borderRadius: s(60), overflow: 'hidden', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.85)', opacity: 1 }}>
+                  <Image source={userPlaceholder} style={{ width: s(150), height: s(150) }} resizeMode="cover" />
+                </View>
+
+                {/* Camera Icon - Absolute */}
+                <View style={[styles.cameraIconContainer, { position: 'absolute', bottom: s(5), right: s(5), width: s(30), height: s(30), borderRadius: s(15), zIndex: 10 }]}>
+                  <Image source={cameraIcon} style={{ width: s(24), height: s(24), tintColor: '#000000' }} />
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* 3. Form */}
+            <View style={{ gap: vs(17) }}>
+              {/* Name */}
+              <View>
+                <Text style={[styles.label, { fontSize: ms(20), marginBottom: vs(2) }]}>Name</Text>
+                <AuthInputField
+                  placeholder=""
+                  value={name}
+                  onChangeText={setName}
+                  style={{ height: vs(52), borderRadius: s(20) }}
+                />
+              </View>
+
+              {/* Age */}
+              <View style={{ marginTop: vs(-10) }}>
+                <Text style={[styles.label, { fontSize: ms(20), lineHeight: ms(25), marginBottom: vs(4) }]}>Age</Text>
+                <AuthInputField
+                  placeholder=""
+                  value={age}
+                  onChangeText={setAge}
+                  keyboardType="number-pad"
+                  style={{ height: vs(52), borderRadius: s(20) }}
+                />
+              </View>
+
+              {/* Gender */}
+              <View style={{ marginTop: vs(-26) }}>
+                <Text style={[styles.label, { fontSize: ms(20), lineHeight: ms(25), marginBottom: vs(8) }]}>Gender:</Text>
+                <View style={{ gap: vs(10) }}>
+                  <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setGender(prev => prev === 'male' ? null : 'male')}>
+                    <View style={[styles.radioButton, { width: s(18), height: s(18), borderRadius: s(9) }]}>
+                      {gender === 'male' && <View style={[styles.radioButtonSelected, { width: s(12), height: s(12), borderRadius: s(6) }]} />}
+                    </View>
+                    <Text style={[styles.radioLabel, { fontSize: ms(14), marginLeft: s(10) }]}>Male</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.radioButtonContainer} onPress={() => setGender(prev => prev === 'female' ? null : 'female')}>
+                    <View style={[styles.radioButton, { width: s(18), height: s(18), borderRadius: s(9) }]}>
+                      {gender === 'female' && <View style={[styles.radioButtonSelected, { width: s(12), height: s(12), borderRadius: s(6) }]} />}
+                    </View>
+                    <Text style={[styles.radioLabel, { fontSize: ms(14), marginLeft: s(10) }]}>Female</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Height */}
+              <View style={{ height: vs(52), zIndex: 2000 }}>
+                <DropdownPicker
+                  label="Height"
+                  data={heightOptions}
+                  selectedValue={height}
+                  onSelect={setHeight}
+                />
+              </View>
+
+              {/* Weight */}
+              <View style={{ height: vs(52), zIndex: 1000, marginTop: vs(30) }}>
+                <DropdownPicker
+                  label="Weight"
+                  data={weightOptions}
+                  selectedValue={weight}
+                  onSelect={setWeight}
+                />
+              </View>
+            </View>
+          </ScrollView>
+
+          {/* 4. CTA Button (Fixed at bottom) */}
+          <View style={{ position: 'absolute', bottom: vs(30), left: 0, right: 0, alignItems: 'center' }}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={async () => {
+                const isFormValid = name.trim() !== '' && age.trim() !== '' && gender !== null && height !== null && weight !== null;
+                if (isFormValid) {
+                  setSaving(true);
+                  setIsNavigating(true);
+                  try {
+                    // Save basic info to backend
+                    await api.put('/users/me', {
+                      full_name: name.trim(),
+                      age: parseInt(age, 10),
+                      gender,
+                      height,
+                      weight
+                    });
+                    // Navigate to next onboarding screen
+                    navigation && navigation.navigate('OnboardingScreen2');
+                  } catch (error: any) {
+                    console.error('Failed to save basic info:', error);
+                    Alert.alert('Error', 'Failed to save your information. Please try again.');
+                    setIsNavigating(false);
+                  } finally {
+                    setSaving(false);
+                  }
+                } else {
+                  setWarningModalVisible(true);
+                }
+              }}
+              disabled={isNavigating || saving}
             >
-              <Animated.Text
+              <Animated.View
                 style={[
-                  styles.getStartedButtonText,
+                  styles.getStartedButton,
                   {
-                    fontSize: ms(18),
-                    color: tripleArrowPulse.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['rgba(255,255,255,0.8)', '#FFFFFF'],
-                    }),
+                    width: s(330),
+                    height: vs(52),
+                    borderRadius: s(20),
+                    paddingHorizontal: s(30),
                     transform: [
                       {
                         scale: tripleArrowPulse.interpolate({
                           inputRange: [0, 1],
-                          outputRange: [1, 1.035],
+                          outputRange: [1, 1.045],
                         }),
                       },
                     ],
-                    textShadowRadius: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 8] }),
+                    backgroundColor: tripleArrowPulse.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['#008800', '#00b800'],
+                    }),
+                    shadowOpacity: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.38] }),
+                    shadowRadius: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [6, 18] }),
+                    elevation: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [2, 10] }),
                   },
                 ]}
               >
-                Get Started
-              </Animated.Text>
-              <AnimatedTripleArrow source={doubleArrowIcon} style={{ width: s(40), height: vs(20) }} />
-            </Animated.View>
-          </TouchableOpacity>
-        </View>
+                <Animated.Text
+                  style={[
+                    styles.getStartedButtonText,
+                    {
+                      fontSize: ms(18),
+                      color: tripleArrowPulse.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['rgba(255,255,255,0.8)', '#FFFFFF'],
+                      }),
+                      transform: [
+                        {
+                          scale: tripleArrowPulse.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [1, 1.035],
+                          }),
+                        },
+                      ],
+                      textShadowRadius: tripleArrowPulse.interpolate({ inputRange: [0, 1], outputRange: [0, 8] }),
+                    },
+                  ]}
+                >
+                  Get Started
+                </Animated.Text>
+                <AnimatedTripleArrow source={doubleArrowIcon} style={{ width: s(40), height: vs(20) }} />
+              </Animated.View>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </View>
 
       <MessageModal
