@@ -32,3 +32,5 @@ npx expo run:android
 ```
 
 This effectively reduces your project's root path length from ~55 characters to just 4 characters (`C:\PF`), preventing the limit from being reached.
+use this to view connected devices
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" devices
