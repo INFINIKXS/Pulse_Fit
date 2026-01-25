@@ -67,8 +67,10 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
   const cycleEnv = () => setEnvironment(environments[(environments.indexOf(environment) + 1) % 3]);
 
   const handleComplete = async () => {
+    console.log('[OnboardingScreen2] handleComplete started');
     setSaving(true);
     try {
+      console.log('[OnboardingScreen2] Sending update to /users/me');
       await api.put('/users/me', {
         fitness_goals: selectedGoals,
         environment,
@@ -76,10 +78,18 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
         onboarding_completed: true,
         mental_wellness_goals: selectedMentalOptions
       });
-      navigation.replace('Main');
+      console.log('[OnboardingScreen2] API Update successful. Navigating to Main...');
+
+      // Use CommonActions to reset the stack and force navigation to Main
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
     } catch (e) {
+      console.error('[OnboardingScreen2] Error in handleComplete:', e);
       Alert.alert('Error', 'Failed to save preferences.');
     } finally {
+      console.log('[OnboardingScreen2] handleComplete finally block');
       setSaving(false);
     }
   };

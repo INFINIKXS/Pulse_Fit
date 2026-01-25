@@ -3,14 +3,22 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
 // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator
-const BASE_URL = 'http://10.126.24.122:4000/api';
+const BASE_URL = 'http://10.236.122.122:4000/api';
 
 const api = axios.create({
     baseURL: BASE_URL,
+    timeout: 10000, // 10 seconds timeout to prevent hanging
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
+// Logout callback registration
+let logoutCallback: (() => void) | null = null;
+
+export const registerLogoutCallback = (callback: () => void) => {
+    logoutCallback = callback;
+};
 
 // Add a request interceptor to attach the token
 api.interceptors.request.use(
@@ -26,6 +34,21 @@ api.interceptors.request.use(
         return config;
     },
     (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Add response interceptor to handle 401s
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response && error.response.status === 401) {
+            console.warn('[API] 401 Unauthorized detected. Triggering logout callback.');
+            // Trigger logout if we have a callback
+            if (logoutCallback) {
+                logoutCallback();
+            }
+        }
         return Promise.reject(error);
     }
 );

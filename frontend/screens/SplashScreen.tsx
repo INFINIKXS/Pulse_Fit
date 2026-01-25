@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useContext, useState } from 'react';
-import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthContext } from '../context/AuthContext';
 import PulseFit_Logo_Centered from '../components/PulseFit_Logo_Centered';
@@ -60,9 +60,14 @@ export default function SplashScreen({ navigation }) {
                     await signOut();
                     navigation.replace('Login');
                 } else {
-                    // If we can't fetch profile for other reasons, send to onboarding logic or retry
-                    // For now keeping original fallback but consider error handling
-                    navigation.replace('Onboarding1');
+                    // Generic error - do not force onboarding, show retry
+                    Alert.alert(
+                        'Connection Error',
+                        'Failed to load user profile. Please check your connection.',
+                        [
+                            { text: 'Retry', onPress: () => navigateNext() }
+                        ]
+                    );
                 }
             }
         } else {

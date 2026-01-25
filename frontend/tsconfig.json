@@ -22,5 +22,5 @@
     "metro.config.cjs",
     "jest.config.js"
   ],
-  "extends": "expo/tsconfig.base"
+  "extends": "expo/tsconfig.base.json"
 }

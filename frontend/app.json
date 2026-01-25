@@ -12,7 +12,8 @@
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "package": "com.anonymous.pulsefit"
     },
     "ios": {
       "supportsTablet": true

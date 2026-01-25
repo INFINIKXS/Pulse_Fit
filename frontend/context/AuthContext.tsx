@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import api from '../services/api';
+import api, { registerLogoutCallback } from '../services/api';
 
 interface AuthContextType {
     userToken: string | null;
@@ -94,6 +94,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         isLoggedIn();
+
+        // Register the logout callback with the API service
+        // This handles 401 Unauthorized errors by logging the user out
+        registerLogoutCallback(() => {
+            signOut();
+        });
     }, []);
 
     return (
