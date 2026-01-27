@@ -3,6 +3,7 @@ import { Animated, View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, 
 import AuthInputField from '../components/AuthInputField';
 import { StatusBar } from 'expo-status-bar';
 import { useScaling } from '../utils/scaling';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '../services/api';
 import * as ImagePicker from 'expo-image-picker';
 import { File, Directory } from 'expo-file-system';
@@ -22,6 +23,7 @@ import { MessageModal, MessageTypes } from '../components/MessageModal';
 export default function BasicInfoScreen({ navigation }: any) {
   const { s, vs, ms } = useScaling();
   const { setUserInfo } = useContext(AuthContext)!;
+  const insets = useSafeAreaInsets();
 
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
@@ -87,7 +89,7 @@ export default function BasicInfoScreen({ navigation }: any) {
             style={{ flex: 1 }}
             contentContainerStyle={{
               paddingHorizontal: PADDING,
-              paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight! + vs(20) : vs(50),
+              paddingTop: Math.max(vs(50), insets.top),
               paddingBottom: vs(100)
             }}
             showsVerticalScrollIndicator={false}

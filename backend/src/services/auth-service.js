@@ -95,23 +95,33 @@ module.exports = {
     }
     console.log('Login successful for user:', data.user?.id);
 
-    // Fetch user profile to get onboarding status (with retry)
+    // Fetch full user profile (with retry)
     const { data: profileData, error: profileError } = await withRetry(() =>
       supabaseAdmin
         .from('profiles')
-        .select('onboarding_completed')
+        .select('*')
         .eq('id', data.user.id)
         .single()
     );
 
-    const onboardingCompleted = profileData ? profileData.onboarding_completed : false;
-    console.log('Profile query result:', profileData, 'onboarding_completed:', onboardingCompleted);
+    // Generate signed URL for avatar if present
+    let avatarSignedUrl = null;
+    if (profileData?.avatar_url) {
+      const { data: urlData } = await supabaseClient.storage
+        .from('avatars')
+        .createSignedUrl(profileData.avatar_url, 60 * 60); // 1 hour
+      avatarSignedUrl = urlData?.signedUrl || null;
+    }
+
+    const profile = profileData || {};
+    console.log('Profile query result:', profile);
 
     return {
       token, // <-- Valid Supabase JWT
       user: {
         ...data.user,
-        onboarding_completed: onboardingCompleted
+        ...profile,
+        avatar_signed_url: avatarSignedUrl
       },
       session: data.session
     };

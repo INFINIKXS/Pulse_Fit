@@ -6,6 +6,8 @@ import AuthScreenContainer from '../components/AuthScreenContainer';
 import PulseFit_Logo from '../components/PulseFit_Logo';
 import AuthInputField from '../components/AuthInputField';
 import PrimaryButton from '../components/PrimaryButton';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useScaling } from '../utils/scaling';
 
 
 
@@ -25,6 +27,8 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const { signIn } = React.useContext(AuthContext)!;
   const [loading, setLoading] = useState(false);
+  const { vs } = useScaling();
+  const insets = useSafeAreaInsets();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -33,27 +37,16 @@ export default function LoginScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      const user = await signIn(email, password);
-
-      if (user?.onboarding_completed) {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' as never }],
-        });
-      } else {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Onboarding1' as never }],
-        });
-      }
+      await signIn(email, password);
+      // No need to navigate manually; AuthContext update triggers AppNavigator 
+      // to switch to authenticated stack (Splash -> Main/Onboarding)
     } catch (error: any) {
       const errorMessage = error.response?.data?.error?.message
         || error.response?.data?.error
         || error.message
         || 'Something went wrong';
       Alert.alert('Login Failed', String(errorMessage));
-    } finally {
-      setLoading(false);
+      setLoading(false); // Only stop loading on error
     }
   };
 
@@ -66,7 +59,7 @@ export default function LoginScreen({ navigation }: Props) {
     <AuthScreenContainer>
       <StatusBar style="light" translucent backgroundColor="transparent" />
       <View style={{ flex: 1, width: '100%', paddingHorizontal: 20, position: 'relative' }}>
-        <View style={{ position: 'absolute', top: 79 }}>
+        <View style={{ position: 'absolute', top: Math.max(vs(79), insets.top) }}>
           <PulseFit_Logo />
         </View>
         {/* Title */}

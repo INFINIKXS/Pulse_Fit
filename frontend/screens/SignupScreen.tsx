@@ -5,6 +5,8 @@ import PrimaryButton from '../components/PrimaryButton';
 import SocialLoginRow from '../components/SocialLoginRow';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useScaling } from '../utils/scaling';
 
 import bgImage from '../assets/images/auth-bg.jpg';
 // import logo from '../assets/images/pulsefit-logo.png';
@@ -31,6 +33,8 @@ export default function SignupScreen({ navigation }: Props) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const { signUp } = React.useContext(AuthContext)!;
   const [loading, setLoading] = useState(false);
+  const { vs } = useScaling();
+  const insets = useSafeAreaInsets();
 
   const handleSignup = async () => {
     if (!email || !password || !confirmPassword) {
@@ -48,7 +52,7 @@ export default function SignupScreen({ navigation }: Props) {
     setLoading(true);
     try {
       await signUp({ email, password }); // Profile data collected during onboarding
-      navigation.navigate('Onboarding1');
+      // No need to navigate manually; AuthContext update triggers AppNavigator
     } catch (error: any) {
       // Handle validation errors from backend
       const errorMessage = error.response?.data?.error?.message
@@ -67,7 +71,8 @@ export default function SignupScreen({ navigation }: Props) {
       <View style={styles.roundedClip}>
         <Image source={bgImage} style={styles.backgroundImage} />
         <View style={styles.overlay} />
-        <View style={styles.content}>
+        {/* We use strict max() rule to prevent header overlap on devices with notches */}
+        <View style={[styles.content, { paddingTop: Math.max(vs(98), insets.top) }]}>
           <PulseFit_Logo />
           <Text style={styles.title}>Sign Up</Text>
           <AuthInputField

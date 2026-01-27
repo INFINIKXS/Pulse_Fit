@@ -9,14 +9,13 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  StatusBar,
-  Platform,
   Modal
 } from 'react-native';
 import api from '../services/api';
 import { MaterialIcons } from '@expo/vector-icons';
 import BreadcrumbMenu from '../components/BreadcrumbMenu';
 import { useScaling } from '../utils/scaling';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MessageModal, MessageTypes } from '../components/MessageModal';
 import { DaySelector } from '../components/DaySelector';
 
@@ -31,11 +30,11 @@ const environments = ['Home', 'Gym', 'Outdoor'];
 export default function OnboardingScreen2({ navigation }: { navigation: any }) {
   // Dynamic scaling hook - updates on screen resize/orientation change
   const { s, vs, ms } = useScaling();
+  const insets = useSafeAreaInsets();
 
   // Design constants using dynamic scaling
   const PADDING = s(20);
   const GAP = s(18);
-  const CARD_PADDING = s(16);
   const ICON_SIZE = s(30);
   const ICON_CIRCLE = s(50);
   const CHECKBOX = s(25);
@@ -64,7 +63,6 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
     });
   };
   const toggleDay = (day: string) => setAvailability(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
-  const cycleEnv = () => setEnvironment(environments[(environments.indexOf(environment) + 1) % 3]);
 
   const handleComplete = async () => {
     console.log('[OnboardingScreen2] handleComplete started');
@@ -96,36 +94,7 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
 
   const isSelected = (key: string) => selectedGoals.includes(key);
 
-  // Card component with flex-based sizing
-  const GoalCard = ({ id, title1, title2, desc, icon, cardFlex }: any) => (
-    <TouchableOpacity
-      style={[
-        styles.card,
-        {
-          flex: cardFlex || 1,
-          borderRadius: RADIUS,
-          padding: CARD_PADDING
-        },
-        isSelected(id) && styles.cardSelected
-      ]}
-      onPress={() => toggleGoal(id)}
-      activeOpacity={0.85}
-    >
-      <View style={styles.cardHeader}>
-        <View style={[styles.iconCircle, { width: ICON_CIRCLE, height: ICON_CIRCLE }]}>
-          <Image source={icon} style={[styles.icon, { width: ICON_SIZE, height: ICON_SIZE }]} />
-        </View>
-        <View style={{ marginLeft: s(9) }}>
-          <Text style={{ color: '#FFF', fontSize: ms(20), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>{title1}</Text>
-          <Text style={{ color: '#FFF', fontSize: ms(20), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Medium' }}>{title2}</Text>
-        </View>
-      </View>
-      <Text style={{ color: '#FFF', fontSize: ms(16), opacity: 0.5, fontFamily: 'FamiljenGrotesk-Regular', lineHeight: ms(20), marginTop: s(6) }}>{desc}</Text>
-      <View style={[styles.checkbox, { width: CHECKBOX, height: CHECKBOX }, isSelected(id) && styles.checkboxChecked]}>
-        {isSelected(id) && <Text style={styles.checkmark}>✓</Text>}
-      </View>
-    </TouchableOpacity>
-  );
+
 
   return (
     <View style={styles.container}>
@@ -136,7 +105,7 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
         showsVerticalScrollIndicator={false}
       >
         {/* HEADER - with proper top spacing */}
-        <View style={{ paddingHorizontal: PADDING, paddingTop: vs(50), paddingBottom: vs(20) }}>
+        <View style={{ paddingHorizontal: PADDING, paddingTop: Math.max(vs(50), insets.top), paddingBottom: vs(20) }}>
           <Text style={{ color: '#FFF', fontSize: ms(22), fontWeight: '500', fontFamily: 'FamiljenGrotesk-Bold' }}>What's Your Fitness Goal?</Text>
           <Text style={{ color: '#FFF', fontSize: ms(12), fontFamily: 'FamiljenGrotesk-Regular', marginTop: s(4) }}>Choose one or more goals to help us create your perfect workout plan.</Text>
         </View>
@@ -487,7 +456,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#060606',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 50,
   },
   section: {},
   // Dedicated goals area - contains all 4 goal cards + breadcrumb

@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ImageBackground, StatusBar as RNStatusBar, Platform } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ImageBackground, StatusBar as RNStatusBar, Platform, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useScaling } from '../utils/scaling';
+
+// Debug component to log screen dimensions
+function DebugScreenSize() {
+  const { width, height } = useWindowDimensions();
+  console.log(`📱 Screen: ${width} × ${height}`);
+  return null;
+}
 
 
 // Assets
@@ -17,6 +25,7 @@ import fullBodyBg from '../assets/images/home_full_body_bg.png';
 
 export default function HomeScreen() {
   const { s, vs, ms } = useScaling();
+  const insets = useSafeAreaInsets();
   const PADDING = s(20);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +62,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <DebugScreenSize />
       <StatusBar style="light" />
       <ScrollView
         style={styles.scrollView}
@@ -63,25 +73,42 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header Row */}
-        <View style={[styles.headerRow, { marginTop: vs(48.07), marginBottom: vs(20), paddingRight: s(35) }]}>
-          {/* Left: Search */}
-          <HeaderPill onSearchChange={setSearchQuery} />
-
-          {/* Right: Logo */}
-          <View style={{ width: s(108.31), height: vs(53.61), alignItems: 'center', justifyContent: 'center' }}>
-            {/* 
-              Wrapper Strategy:
-              1. Create a view with the EXACT intrinsic size of the logo contents (191.42 x 94.75)
-              2. Scale this view down to fit the target container.
-              3. Inside, shift the logo content so its visual center aligns with the wrapper's center.
-                 - Visual content span: Left ~32, Right ~220 (Text ends around 122 + ~100) -> Visual Center ~126
-                 - Wrapper Center: 191.42 / 2 = 95.7
-                 - Shift needed: 95.7 - 126 = -30.3 (approx -30)
-            */}
-            <View style={{ width: 191.42, height: 94.75, alignItems: 'center', justifyContent: 'center', transform: [{ scale: 0.566 }] }}>
-              <PulseFit_Logo style={{ transform: [{ translateX: -45 }] }} />
+        {/* Header Container - Uses absolute positioning per designer specs */}
+        {/* We use Math.max() to ensure we respect the physical status bar (insets.top) if it's larger than the design spec */}
+        <View style={{ position: 'relative', height: vs(103), marginBottom: vs(1) }}>
+          {/* Logo (group_2) - Absolutely centered horizontally on screen */}
+          <View style={{
+            position: 'absolute',
+            top: Math.max(vs(48.07), insets.top), // strict safe area rule
+            left: 0,
+            right: 0,
+            alignItems: 'center',
+            zIndex: 1,
+          }}>
+            <View style={{ width: s(108.31), height: vs(53.61), alignItems: 'center', justifyContent: 'center' }}>
+              {/* 
+                Wrapper Strategy:
+                1. Create a view with the EXACT intrinsic size of the logo contents (191.42 x 94.75)
+                2. Scale this view down to fit the target container.
+                3. Inside, shift the logo content so its visual center aligns with the wrapper's center.
+              */}
+              <View style={{ width: 191.42, height: 94.75, alignItems: 'center', justifyContent: 'center', transform: [{ scale: 0.566 }] }}>
+                <PulseFit_Logo style={{ transform: [{ translateX: -45 }] }} />
+              </View>
             </View>
+          </View>
+
+          {/* Search (group_5) - Left aligned, floats on left side */}
+          <View style={{
+            position: 'absolute',
+            top: Math.max(vs(58), insets.top + vs(10)), // Push search slightly below status bar if needed
+            left: s(20),
+            width: s(97),
+            height: vs(45),
+            justifyContent: 'center',
+            zIndex: 2,
+          }}>
+            <HeaderPill onSearchChange={setSearchQuery} />
           </View>
         </View>
 

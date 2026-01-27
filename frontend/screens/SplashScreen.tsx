@@ -8,7 +8,7 @@ import api from '../services/api';
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen({ navigation }) {
-    const { isLoading, userToken, signOut } = useContext(AuthContext)!;
+    const { isLoading, userToken, signOut, setUserInfo } = useContext(AuthContext)!;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
     const [animationDone, setAnimationDone] = useState(false);
@@ -47,6 +47,9 @@ export default function SplashScreen({ navigation }) {
             try {
                 const response = await api.get('/users/me');
                 const profile = response.data.data;
+
+                // Update AuthContext with fresh profile data (includes avatar)
+                setUserInfo(profile);
 
                 if (profile?.onboarding_completed) {
                     navigation.replace('Main');
