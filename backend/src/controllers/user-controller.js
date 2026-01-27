@@ -93,19 +93,21 @@ module.exports = {
       if (fitness_goals !== undefined) updates.fitness_goals = fitness_goals;
       if (mental_wellness_goals !== undefined) updates.mental_wellness_goals = mental_wellness_goals;
 
+      console.log('UpdateMe Headers:', JSON.stringify(req.headers['content-type'], null, 2));
       console.log('UpdateMe Request Body:', JSON.stringify(req.body, null, 2));
-      console.log('Mapped Updates:', JSON.stringify(updates, null, 2));
+      console.log('UpdateMe Req.File:', req.file ? 'Present' : 'Missing');
 
       let avatarPath;
       const supabase = getUserSupabaseClient(jwt);
       if (req.file) {
         const file = req.file;
+        console.log('Processing file:', file.originalname, file.mimetype, file.size);
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
         if (!allowedTypes.includes(file.mimetype)) {
           return handleApiError(res, { message: 'Invalid file type. Only JPEG, PNG, GIF allowed.' }, 'INVALID_FILE_TYPE', 400);
         }
-        if (file.size > 1024 * 1024) {
-          return handleApiError(res, { message: 'File too large. Max 1MB allowed.' }, 'FILE_TOO_LARGE', 400);
+        if (file.size > 5 * 1024 * 1024) {
+          return handleApiError(res, { message: 'File too large. Max 5MB allowed.' }, 'FILE_TOO_LARGE', 400);
         }
         const ext = path.extname(file.originalname);
         avatarPath = `${userId}-${Date.now()}${ext}`;
@@ -119,12 +121,35 @@ module.exports = {
         updates.avatar_url = avatarPath;
       }
 
+      console.log('Final Updates Object:', JSON.stringify(updates, null, 2));
+
+      if (Object.keys(updates).length === 0) {
+        console.log('No updates provided, returning current profile.');
+        const { data: currentProfile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+        if (currentProfile && currentProfile.avatar_url) {
+          currentProfile.avatar_signed_url = await getSignedAvatarUrl(currentProfile.avatar_url, jwt);
+        }
+        return res.json({
+          success: true,
+          data: currentProfile,
+          message: 'No changes made'
+        });
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
         .eq('id', userId)
         .select()
         .single();
+
+      if (error) {
+        console.error('Supabase update query error:', error);
+      }
 
 
 

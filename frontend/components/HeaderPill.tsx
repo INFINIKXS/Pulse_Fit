@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, Image, TouchableOpacity, TextInput, StyleSheet, Alert, Platform } from 'react-native';
+import { AuthContext } from '../context/AuthContext';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withTiming,
     Easing,
+    withDelay,
     runOnJS
 } from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
@@ -13,14 +15,30 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Assets
 import defaultAvatar from '../assets/images/user-placeholder-icon.png'; // Correct placeholder
+import { MessageModal, MessageTypes } from './MessageModal';
 
-const HeaderPill = () => {
+const HeaderPill = ({ onSearchChange }: { onSearchChange?: (text: string) => void }) => {
     const { s, vs, ms } = useScaling();
 
+    const { userInfo, updateUserAvatar } = useContext(AuthContext)!;
+
     // State
-    const [avatarUri, setAvatarUri] = useState<string | null>(null);
+    // We don't need local avatarUri state if we derive from userInfo
+    // But we might want it for immediate feedback while uploading?
+    // Let's use userInfo directly.
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchText, setSearchText] = useState('');
+
+    // Modal State
+    const [warningModalVisible, setWarningModalVisible] = useState(false);
+    const [errorModalVisible, setErrorModalVisible] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalHeader, setModalHeader] = useState('');
+
+    const handleSearchChange = (text: string) => {
+        setSearchText(text);
+        onSearchChange?.(text);
+    };
 
     // Animation Values
     const COLLAPSED_WIDTH = s(97);
@@ -52,7 +70,7 @@ const HeaderPill = () => {
         } else {
             // Open
             width.value = withTiming(EXPANDED_WIDTH, { duration: 300, easing: Easing.bezier(0.25, 0.1, 0.25, 1) });
-            opacityInput.value = withTiming(1, { duration: 300, delay: 100 });
+            opacityInput.value = withDelay(100, withTiming(1, { duration: 300 }));
             setIsSearchOpen(true);
         }
     };
@@ -72,11 +90,29 @@ const HeaderPill = () => {
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1],
-            quality: 1,
+            quality: 0.8,
         });
 
         if (!result.canceled) {
-            setAvatarUri(result.assets[0].uri);
+            const uri = result.assets[0].uri;
+            try {
+                await updateUserAvatar(uri);
+            } catch (error: any) {
+                // console.error(error);
+                let message = 'Failed to upload profile picture.';
+                let header = 'Error';
+
+                if (error.message?.includes('413') || error.message?.includes('Too Large')) {
+                    message = "The image file is too large. Please choose a smaller image (max 5MB).";
+                    setModalHeader("File Too Large");
+                    setModalMessage(message);
+                    setWarningModalVisible(true);
+                } else {
+                    setModalHeader("Upload Failed");
+                    setModalMessage(message);
+                    setErrorModalVisible(true);
+                }
+            }
         }
     };
 
@@ -99,7 +135,7 @@ const HeaderPill = () => {
                 {!isSearchOpen && (
                     <TouchableOpacity onPress={handlePickImage} activeOpacity={0.8} style={{ zIndex: 10 }}>
                         <Image
-                            source={avatarUri ? { uri: avatarUri } : defaultAvatar}
+                            source={userInfo?.avatar_signed_url ? { uri: userInfo.avatar_signed_url } : (userInfo?.avatar_url ? { uri: userInfo.avatar_url } /* Fallback to unsigned if signed missing? */ : defaultAvatar)}
                             style={{ width: HEIGHT - s(8), height: HEIGHT - s(8), borderRadius: (HEIGHT - s(8)) / 2, marginLeft: s(2), backgroundColor: '#E0E0E0' }}
                             resizeMode="cover"
                         />
@@ -114,7 +150,7 @@ const HeaderPill = () => {
                             placeholder="Search..."
                             placeholderTextColor="rgba(255,255,255,0.7)"
                             value={searchText}
-                            onChangeText={setSearchText}
+                            onChangeText={handleSearchChange}
                             autoFocus
                         />
                     </Animated.View>
@@ -126,6 +162,24 @@ const HeaderPill = () => {
                 </TouchableOpacity>
 
             </View>
+
+            <MessageModal
+                visible={warningModalVisible}
+                messageType={MessageTypes.WARNING}
+                headerText={modalHeader}
+                messageText={modalMessage}
+                buttonText="Okay"
+                onDismiss={() => setWarningModalVisible(false)}
+            />
+
+            <MessageModal
+                visible={errorModalVisible}
+                messageType={MessageTypes.FAIL}
+                headerText={modalHeader}
+                messageText={modalMessage}
+                buttonText="Close"
+                onDismiss={() => setErrorModalVisible(false)}
+            />
         </Animated.View>
     );
 };

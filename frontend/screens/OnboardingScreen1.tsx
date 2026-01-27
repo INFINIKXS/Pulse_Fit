@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Animated, View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, Platform, StatusBar as RNStatusBar, KeyboardAvoidingView, Alert, ActivityIndicator } from 'react-native';
 import AuthInputField from '../components/AuthInputField';
 import { StatusBar } from 'expo-status-bar';
 import { useScaling } from '../utils/scaling';
 import api from '../services/api';
+import * as ImagePicker from 'expo-image-picker';
+import { File, Directory } from 'expo-file-system';
+import { fetch } from 'expo/fetch';
+import * as SecureStore from 'expo-secure-store';
+import { AuthContext } from '../context/AuthContext';
 
 // Assume these assets are in the correct path
 import bgImage from '../assets/images/onboardingScreen1.jpg';
@@ -16,15 +21,22 @@ import { MessageModal, MessageTypes } from '../components/MessageModal';
 
 export default function BasicInfoScreen({ navigation }: any) {
   const { s, vs, ms } = useScaling();
+  const { setUserInfo } = useContext(AuthContext)!;
 
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | null>(null);
   const [height, setHeight] = useState<string | null>(null);
   const [weight, setWeight] = useState<string | null>(null);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [warningModalVisible, setWarningModalVisible] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Custom Error Modal State
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorHeader, setErrorHeader] = useState('Error');
 
   const PADDING = s(24);
   const VERTICAL_SPACING = vs(20);
@@ -36,6 +48,26 @@ export default function BasicInfoScreen({ navigation }: any) {
     '40–44 kg', '45–49 kg', '50–54 kg', '55–59 kg', '60–64 kg',
     '65–69 kg', '70–74 kg', '75–79 kg', '80–84 kg', '85–89 kg', '90+ kg', 'Others'
   ];
+
+  const handlePickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission Required", "You've refused to allow this app to access your photos!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setAvatarUri(result.assets[0].uri);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -67,14 +99,22 @@ export default function BasicInfoScreen({ navigation }: any) {
                 Briefly tell us about yourself as you begin fitness journey.
                 Your information is safe and you can always change it later.
               </Text>
+
             </View>
 
             {/* 2. Profile Picture Upload */}
             <View style={{ alignItems: 'center', marginBottom: vs(0) }}>
-              <TouchableOpacity style={[styles.profilePicContainer, { width: s(120), height: s(120) }]}>
+              <TouchableOpacity
+                style={[styles.profilePicContainer, { width: s(120), height: s(120) }]}
+                onPress={handlePickImage}
+              >
                 {/* Clipped Background + Image */}
                 <View style={{ flex: 1, width: '100%', borderRadius: s(60), overflow: 'hidden', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.85)', opacity: 1 }}>
-                  <Image source={userPlaceholder} style={{ width: s(150), height: s(150) }} resizeMode="cover" />
+                  <Image
+                    source={avatarUri ? { uri: avatarUri } : userPlaceholder}
+                    style={{ width: s(150), height: s(150) }}
+                    resizeMode="cover"
+                  />
                 </View>
 
                 {/* Camera Icon - Absolute */}
@@ -160,14 +200,70 @@ export default function BasicInfoScreen({ navigation }: any) {
                   setSaving(true);
                   setIsNavigating(true);
                   try {
-                    // Save basic info to backend
-                    await api.put('/users/me', {
-                      full_name: name.trim(),
-                      age: parseInt(age, 10),
-                      gender,
-                      height,
-                      weight
-                    });
+                    let response;
+                    // STRATEGY: Use JSON for text-only updates (more reliable), FormData only for images.
+                    if (!avatarUri) {
+                      const payload = {
+                        full_name: name.trim(),
+                        age: age,
+                        gender: gender!,
+                        height: height!,
+                        weight: weight!,
+                        // no avatar field
+                      };
+                      console.log('Sending JSON payload:', payload);
+                      response = await api.put('/users/me', payload); // Axios autosets application/json
+                    } else {
+                      // Use expo-file-system and expo/fetch for robust native upload
+                      console.log('Starting native upload for:', avatarUri);
+                      const token = await SecureStore.getItemAsync('userToken');
+
+                      // Create File instance from URI
+                      const filename = avatarUri.split('/').pop() || 'profile.jpg';
+                      // Handle potential query params or encoding in URI if necessary, but ImagePicker usually clean.
+                      const dirUri = avatarUri.substring(0, avatarUri.lastIndexOf('/'));
+                      const dir = new Directory(dirUri);
+                      const file = new File(dir, filename);
+
+                      const formData = new FormData();
+                      // @ts-ignore: expo/fetch supports passing File instance directly
+                      formData.append('avatar', file);
+                      formData.append('full_name', name.trim());
+                      formData.append('age', age);
+                      formData.append('gender', gender!);
+                      formData.append('height', height!);
+                      formData.append('weight', weight!);
+
+                      const fetchRes = await fetch('http://10.250.111.122:4000/api/users/me', {
+                        method: 'PUT',
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: formData,
+                      });
+
+                      if (fetchRes.ok) {
+                        const responseData = await fetchRes.json();
+                        response = { status: fetchRes.status, data: responseData };
+                      } else {
+                        console.error('Native upload failed:', fetchRes.status, fetchRes.statusText);
+                        const errorBody = await fetchRes.text();
+                        console.error('Error body:', errorBody);
+                        throw new Error(`Upload failed: ${fetchRes.status}`);
+                      }
+                    }
+
+                    console.log('Save success:', response.status);
+
+                    // Sync global state with the updated user data from backend
+                    if (response.data && response.data.data) {
+                      const updatedUser = response.data.data;
+                      console.log('Updating global user info context with:', updatedUser);
+                      setUserInfo(updatedUser);
+                      // Also persist to SecureStore so it survives reload
+                      await SecureStore.setItemAsync('userInfo', JSON.stringify(updatedUser));
+                    }
+
                     // Navigate to next onboarding screen
                     navigation && navigation.navigate('OnboardingScreen2');
                   } catch (error: any) {
@@ -230,9 +326,9 @@ export default function BasicInfoScreen({ navigation }: any) {
                     },
                   ]}
                 >
-                  Get Started
+                  {saving ? 'Saving...' : 'Get Started'}
                 </Animated.Text>
-                <AnimatedTripleArrow source={doubleArrowIcon} style={{ width: s(40), height: vs(20) }} />
+                {!saving && <AnimatedTripleArrow source={doubleArrowIcon} style={{ width: s(40), height: vs(20) }} />}
               </Animated.View>
             </TouchableOpacity>
           </View>

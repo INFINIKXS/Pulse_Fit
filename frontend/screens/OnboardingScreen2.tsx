@@ -18,6 +18,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import BreadcrumbMenu from '../components/BreadcrumbMenu';
 import { useScaling } from '../utils/scaling';
 import { MessageModal, MessageTypes } from '../components/MessageModal';
+import { DaySelector } from '../components/DaySelector';
 
 // Icon imports
 import mentalHealthIcon from '../assets/images/ri_mental-health-fill.png';
@@ -26,7 +27,6 @@ import muscleIcon from '../assets/images/hugeicons_body-part-muscle.png';
 import yogaIcon from '../assets/images/grommet-icons_yoga.png';
 
 const environments = ['Home', 'Gym', 'Outdoor'];
-const days = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
 
 export default function OnboardingScreen2({ navigation }: { navigation: any }) {
   // Dynamic scaling hook - updates on screen resize/orientation change
@@ -364,50 +364,7 @@ export default function OnboardingScreen2({ navigation }: { navigation: any }) {
 
         {/* AVAILABILITY */}
         <View style={{ marginTop: vs(90) }}>
-          <Text style={{ color: '#FFF', fontSize: ms(18), fontFamily: 'FamiljenGrotesk-Regular', marginLeft: PADDING, marginBottom: vs(10) }}>Availability</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: PADDING }}>
-            {days.map((day, index) => {
-              // XML Widths: Sun=81, Mon=85, Tue=87, Wed=110
-              const widths: { [key: string]: number } = {
-                'Sundays': 81,
-                'Mondays': 85,
-                'Tuesdays': 87,
-                'Wednesdays': 110,
-                'Thursdays': 94,
-                'Fridays': 71,
-                'Saturdays': 91
-              };
-
-              const selected = availability.includes(day);
-
-              return (
-                <TouchableOpacity
-                  key={day}
-                  style={[
-                    styles.dayBtn,
-                    {
-                      width: s(widths[day]),
-                      height: vs(40),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderRadius: vs(20),
-                      marginRight: s(5),
-                      backgroundColor: selected ? '#A2D149' : 'transparent', // Warmer green
-                      borderColor: '#A2D149'
-                    }
-                  ]}
-                  onPress={() => toggleDay(day)}
-                >
-                  <Text style={{
-                    color: selected ? '#000000' : '#A2D149', // Black text on selection
-                    fontSize: ms(14),
-                    fontFamily: 'FamiljenGrotesk-Regular',
-                    lineHeight: ms(20)
-                  }}>{day}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+          <DaySelector selectedDays={availability} onToggleDay={toggleDay} />
         </View>
 
         {/* BUTTONS */}
@@ -586,12 +543,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  // Add to imports at top:
   // import editableLine from '../assets/images/Editable-line.png';
-  dayBtn: {
-    borderWidth: 2,
-    borderColor: '#7AC530',
-  },
   doneBtn: {
     flex: 1,
     backgroundColor: '#00B300', // XML Frame 13 fill

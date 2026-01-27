@@ -1,22 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ImageBackground, StatusBar as RNStatusBar, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useScaling } from '../utils/scaling';
-import { BlurView } from 'expo-blur'; // If needed, but not using for now
+
 
 // Assets
-import HeaderPill from '../components/HeaderPill'; // Import Component
-import pulseFitLogo from '../assets/images/pulsefit-logo.png'; // Using existing logo
-import calendarStrip from '../assets/images/home_calendar_strip.png'; // Frame 16
-import quickAbsBg from '../assets/images/home_quick_abs_bg.png'; // Rectangle 24
-import iconTime from '../assets/images/icon_time.png'; // gg_time
-import activitiesRow from '../assets/images/home_activities_row.png'; // Group 9
-import fullBodyBg from '../assets/images/home_full_body_bg.png'; // Rectangle 29
+import HeaderPill from '../components/HeaderPill';
+import PulseFit_Logo from '../components/PulseFit_Logo';
+import pulseFitLogo from '../assets/images/pulsefit-logo.png';
+// import calendarStrip from '../assets/images/home_calendar_strip.png'; // Removed in favor of component
+import { CalendarStrip } from '../components/CalendarStrip';
+import quickAbsBg from '../assets/images/home_quick_abs_bg.png';
+import iconTime from '../assets/images/icon_time.png';
+import activitiesRow from '../assets/images/home_activities_row.png';
+import fullBodyBg from '../assets/images/home_full_body_bg.png';
 
 export default function HomeScreen() {
   const { s, vs, ms } = useScaling();
-
   const PADDING = s(20);
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Data
+  const todaysWorkout = {
+    id: 'today-1',
+    title: 'Quick Abs',
+    duration: '15 mins',
+    reps: '4 x 15',
+    image: quickAbsBg
+  };
+
+  const workouts = [
+    {
+      id: 'w-1',
+      title: 'Full Body Burn',
+      duration: '30 mins',
+      reps: '3 x 20',
+      tags: ['HIIT', 'High', 'No Equipment'],
+      image: fullBodyBg
+    }
+  ];
+
+  // Filtering
+  const isSearching = searchQuery.length > 0;
+
+  const filteredToday = todaysWorkout.title.toLowerCase().includes(searchQuery.toLowerCase()) ? todaysWorkout : null;
+  const filteredWorkouts = workouts.filter(w => w.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const showTodaySection = !isSearching || filteredToday;
+  const showWorkoutsSection = !isSearching || filteredWorkouts.length > 0;
+  const showActivities = !isSearching; // Hide activities row when searching maybe? User intent is probably specific workout.
 
   return (
     <View style={styles.container}>
@@ -30,118 +63,129 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header Row */}
-        <View style={[styles.headerRow, { marginTop: Platform.OS === 'android' ? RNStatusBar.currentHeight! + vs(10) : vs(50), marginBottom: vs(20) }]}>
-          {/* Left: Interactive Header Pill */}
-          <HeaderPill />
+        <View style={[styles.headerRow, { marginTop: vs(48.07), marginBottom: vs(20), paddingRight: s(35) }]}>
+          {/* Left: Search */}
+          <HeaderPill onSearchChange={setSearchQuery} />
 
           {/* Right: Logo */}
-          <Image
-            source={pulseFitLogo}
-            style={{ width: s(100), height: vs(30) }}
-            resizeMode="contain"
-          />
+          <View style={{ width: s(108.31), height: vs(53.61), alignItems: 'center', justifyContent: 'center' }}>
+            {/* 
+              Wrapper Strategy:
+              1. Create a view with the EXACT intrinsic size of the logo contents (191.42 x 94.75)
+              2. Scale this view down to fit the target container.
+              3. Inside, shift the logo content so its visual center aligns with the wrapper's center.
+                 - Visual content span: Left ~32, Right ~220 (Text ends around 122 + ~100) -> Visual Center ~126
+                 - Wrapper Center: 191.42 / 2 = 95.7
+                 - Shift needed: 95.7 - 126 = -30.3 (approx -30)
+            */}
+            <View style={{ width: 191.42, height: 94.75, alignItems: 'center', justifyContent: 'center', transform: [{ scale: 0.566 }] }}>
+              <PulseFit_Logo style={{ transform: [{ translateX: -45 }] }} />
+            </View>
+          </View>
         </View>
 
-        {/* Greeting */}
+        {/* Greeting - Only show if not searching? Or always? Let's keep it. */}
         <Text style={[styles.greetingText, { fontSize: ms(18), lineHeight: ms(22), marginBottom: vs(15) }]}>
           Good Morning, <Text style={styles.boldText}>Sammy!</Text>
         </Text>
 
-        {/* Calendar Strip */}
-        <View style={{ width: '100%', alignItems: 'center', marginBottom: vs(20) }}>
-          <Image
-            source={calendarStrip}
-            style={{ width: '100%', height: vs(75), borderRadius: s(15) }}
-            resizeMode="contain"
-          />
-        </View>
+        {/* Calendar Strip - potentially hide during search */}
+        {!isSearching && (
+          <View style={{ marginBottom: vs(20) }}>
+            <CalendarStrip />
+          </View>
+        )}
 
         {/* Today's Workout Section */}
-        <View style={{ marginBottom: vs(20) }}>
-          <Text style={[styles.sectionTitle, { fontSize: ms(20), marginBottom: vs(15) }]}>Today’s Workout</Text>
+        {showTodaySection && filteredToday && (
+          <View style={{ marginBottom: vs(20) }}>
+            <Text style={[styles.sectionTitle, { fontSize: ms(20), marginBottom: vs(15) }]}>Today’s Workout</Text>
 
-          {/* Quick Abs Card */}
-          <ImageBackground
-            source={quickAbsBg}
-            style={{ width: '100%', height: vs(180), justifyContent: 'flex-end' }}
-            imageStyle={{ borderRadius: s(30) }}
-          >
-            <View style={[styles.cardContent, { padding: s(20) }]}>
-              <Text style={[styles.cardTitle, { fontSize: ms(25), marginBottom: vs(50) }]}>Quick Abs</Text>
+            <ImageBackground
+              source={filteredToday.image}
+              style={{ width: '100%', height: vs(180), justifyContent: 'flex-end' }}
+              imageStyle={{ borderRadius: s(30) }}
+            >
+              <View style={[styles.cardContent, { padding: s(20) }]}>
+                <Text style={[styles.cardTitle, { fontSize: ms(25), marginBottom: vs(50) }]}>{filteredToday.title}</Text>
 
-              {/* Time & Reps */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: vs(10) }}>
-                <View style={[styles.pill, { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: s(10), paddingVertical: vs(5) }]}>
-                  <Image source={iconTime} style={{ width: s(15), height: s(15), marginRight: s(5), tintColor: '#FFF' }} resizeMode="contain" />
-                  <Text style={[styles.pillText, { fontSize: ms(14) }]}>15 mins</Text>
+                {/* Time & Reps */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: vs(10) }}>
+                  <View style={[styles.pill, { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: s(10), paddingVertical: vs(5) }]}>
+                    <Image source={iconTime} style={{ width: s(15), height: s(15), marginRight: s(5), tintColor: '#FFF' }} resizeMode="contain" />
+                    <Text style={[styles.pillText, { fontSize: ms(14) }]}>{filteredToday.duration}</Text>
+                  </View>
+                  <View style={[styles.pill, { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: s(10), paddingVertical: vs(5), marginLeft: 'auto' }]}>
+                    <Text style={[styles.pillText, { fontSize: ms(14) }]}>{filteredToday.reps}</Text>
+                  </View>
                 </View>
-                {/* Fake 4x15 badge if not in image, assuming it's part of the design overlay or needs to be added across. 
-                            The XML didn't explicitly separate it, but image shows "4 x 15" on the right.
-                            I'll add a view for it.
-                        */}
-                <View style={[styles.pill, { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: s(10), paddingVertical: vs(5), marginLeft: 'auto' }]}>
-                  <Text style={[styles.pillText, { fontSize: ms(14) }]}>4 x 15</Text>
-                </View>
-              </View>
 
-              {/* Continue Button */}
-              <View style={[styles.continueButton, { height: vs(50), borderRadius: s(25), paddingHorizontal: s(20) }]}>
-                <Text style={[styles.continueText, { fontSize: ms(16) }]}>Continue this workout</Text>
-                {/* Assuming arrow is part of an icon or text, using > for now */}
-                <View style={{ width: s(30), height: s(30), borderRadius: s(15), backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#000', fontSize: ms(16), fontWeight: 'bold' }}>→</Text>
+                {/* Continue Button */}
+                <View style={[styles.continueButton, { height: vs(50), borderRadius: s(25), paddingHorizontal: s(20) }]}>
+                  <Text style={[styles.continueText, { fontSize: ms(16) }]}>Continue this workout</Text>
+                  <View style={{ width: s(30), height: s(30), borderRadius: s(15), backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: '#000', fontSize: ms(16), fontWeight: 'bold' }}>→</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </ImageBackground>
-        </View>
+            </ImageBackground>
+          </View>
+        )}
 
         {/* Activities Section */}
-        <View style={{ marginBottom: vs(20) }}>
-          <Text style={[styles.sectionTitle, { fontSize: ms(20), marginBottom: vs(15) }]}>Activities</Text>
-          <Image
-            source={activitiesRow}
-            style={{ width: '100%', height: vs(105) }}
-            resizeMode="contain"
-          />
-        </View>
+        {showActivities && (
+          <View style={{ marginBottom: vs(20) }}>
+            <Text style={[styles.sectionTitle, { fontSize: ms(20), marginBottom: vs(15) }]}>Activities</Text>
+            <Image
+              source={activitiesRow}
+              style={{ width: '100%', height: vs(105) }}
+              resizeMode="contain"
+            />
+          </View>
+        )}
 
         {/* Workouts Section */}
-        <View style={{ marginBottom: vs(20) }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: vs(15) }}>
-            <Text style={[styles.sectionTitle, { fontSize: ms(20) }]}>Workouts</Text>
-            <TouchableOpacity>
-              <Text style={[styles.seeAllText, { fontSize: ms(15) }]}>See all</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Full Body Burn Card */}
-          <ImageBackground
-            source={fullBodyBg}
-            style={{ width: '100%', height: vs(160), justifyContent: 'flex-end' }}
-            imageStyle={{ borderRadius: s(30) }}
-          >
-            <View style={{ padding: s(20) }}>
-              <Text style={[styles.cardTitle, { fontSize: ms(25), marginBottom: vs(5) }]}>Full Body Burn</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: vs(15) }}>
-                <Image source={iconTime} style={{ width: s(15), height: s(15), marginRight: s(5), tintColor: '#FFF' }} resizeMode="contain" />
-                <Text style={[styles.pillText, { fontSize: ms(14) }]}>30 mins | 3 x 20</Text>
-              </View>
-
-              <View style={{ flexDirection: 'row', gap: s(10) }}>
-                <View style={[styles.tag, { paddingHorizontal: s(15), paddingVertical: vs(5), borderRadius: s(10) }]}>
-                  <Text style={[styles.tagText, { fontSize: ms(14) }]}>HIIT</Text>
-                </View>
-                <View style={[styles.tag, { paddingHorizontal: s(15), paddingVertical: vs(5), borderRadius: s(10) }]}>
-                  <Text style={[styles.tagText, { fontSize: ms(14) }]}>High</Text>
-                </View>
-                <View style={[styles.tag, { paddingHorizontal: s(15), paddingVertical: vs(5), borderRadius: s(10) }]}>
-                  <Text style={[styles.tagText, { fontSize: ms(14) }]}>No Equipment</Text>
-                </View>
-              </View>
+        {showWorkoutsSection && (
+          <View style={{ marginBottom: vs(20) }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: vs(15) }}>
+              <Text style={[styles.sectionTitle, { fontSize: ms(20) }]}>Workouts</Text>
+              <TouchableOpacity>
+                <Text style={[styles.seeAllText, { fontSize: ms(15) }]}>See all</Text>
+              </TouchableOpacity>
             </View>
-          </ImageBackground>
-        </View>
+
+            {filteredWorkouts.map((workout) => (
+              <ImageBackground
+                key={workout.id}
+                source={workout.image}
+                style={{ width: '100%', height: vs(160), justifyContent: 'flex-end', marginBottom: vs(20) }}
+                imageStyle={{ borderRadius: s(30) }}
+              >
+                <View style={{ padding: s(20) }}>
+                  <Text style={[styles.cardTitle, { fontSize: ms(25), marginBottom: vs(5) }]}>{workout.title}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: vs(15) }}>
+                    <Image source={iconTime} style={{ width: s(15), height: s(15), marginRight: s(5), tintColor: '#FFF' }} resizeMode="contain" />
+                    <Text style={[styles.pillText, { fontSize: ms(14) }]}>{workout.duration} | {workout.reps}</Text>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', gap: s(10) }}>
+                    {workout.tags.map((tag, i) => (
+                      <View key={i} style={[styles.tag, { paddingHorizontal: s(15), paddingVertical: vs(5), borderRadius: s(10) }]}>
+                        <Text style={[styles.tagText, { fontSize: ms(14) }]}>{tag}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </ImageBackground>
+            ))}
+          </View>
+        )}
+
+        {isSearching && !filteredToday && filteredWorkouts.length === 0 && (
+          <View style={{ alignItems: 'center', marginTop: vs(50) }}>
+            <Text style={{ color: '#888', fontFamily: 'FamiljenGrotesk-Regular', fontSize: ms(16) }}>No workouts found for "{searchQuery}"</Text>
+          </View>
+        )}
 
       </ScrollView>
     </View>
