@@ -61,6 +61,7 @@ export default function HomeScreen() {
           { paddingHorizontal: PADDING, paddingBottom: vs(100) }
         ]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header Row */}
         <View style={[styles.headerRow, { marginTop: vs(48.07), marginBottom: vs(20), paddingRight: s(35) }]}>

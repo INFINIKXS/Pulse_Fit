@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Image, TouchableOpacity, TextInput, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Image, TouchableOpacity, TextInput, StyleSheet, Alert, Platform, Keyboard } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import Animated, {
     useSharedValue,
@@ -42,7 +42,7 @@ const HeaderPill = ({ onSearchChange }: { onSearchChange?: (text: string) => voi
 
     // Animation Values
     const COLLAPSED_WIDTH = s(97);
-    const EXPANDED_WIDTH = s(250);
+    const EXPANDED_WIDTH = s(180);
     const HEIGHT = vs(45);
 
     const width = useSharedValue(COLLAPSED_WIDTH);
@@ -63,6 +63,7 @@ const HeaderPill = ({ onSearchChange }: { onSearchChange?: (text: string) => voi
     const toggleSearch = () => {
         if (isSearchOpen) {
             // Close
+            Keyboard.dismiss(); // Ensure keyboard dismisses first
             width.value = withTiming(COLLAPSED_WIDTH, { duration: 300, easing: Easing.bezier(0.25, 0.1, 0.25, 1) });
             opacityInput.value = withTiming(0, { duration: 200 });
             setIsSearchOpen(false);
@@ -157,7 +158,17 @@ const HeaderPill = ({ onSearchChange }: { onSearchChange?: (text: string) => voi
                 )}
 
                 {/* Search Icon / Close Icon */}
-                <TouchableOpacity onPress={toggleSearch} style={{ marginRight: s(10), marginLeft: isSearchOpen ? 0 : 'auto' }}>
+                <TouchableOpacity
+                    onPress={toggleSearch}
+                    style={{
+                        marginRight: s(6),
+                        marginLeft: isSearchOpen ? 0 : 'auto',
+                        padding: s(5), // Increase touch area
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                    hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} // Expand touchable area
+                >
                     <Ionicons name={isSearchOpen ? "close-circle" : "search"} size={s(24)} color="white" />
                 </TouchableOpacity>
 
