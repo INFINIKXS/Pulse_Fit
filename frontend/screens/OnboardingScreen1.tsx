@@ -83,7 +83,7 @@ export default function BasicInfoScreen({ navigation }: any) {
           style={{ flex: 1 }}
         >
           <ScrollView
-            pointerEvents={isNavigating ? 'none' : 'auto'}
+            pointerEvents={isNavigating || saving ? 'none' : 'auto'}
             style={{ flex: 1 }}
             contentContainerStyle={{
               paddingHorizontal: PADDING,
@@ -133,6 +133,7 @@ export default function BasicInfoScreen({ navigation }: any) {
                   placeholder=""
                   value={name}
                   onChangeText={setName}
+                  editable={!saving && !isNavigating}
                   style={{ height: vs(52), borderRadius: s(20) }}
                 />
               </View>
@@ -145,6 +146,7 @@ export default function BasicInfoScreen({ navigation }: any) {
                   value={age}
                   onChangeText={setAge}
                   keyboardType="number-pad"
+                  editable={!saving && !isNavigating}
                   style={{ height: vs(52), borderRadius: s(20) }}
                 />
               </View>

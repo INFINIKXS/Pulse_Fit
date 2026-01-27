@@ -20,6 +20,7 @@ export default function ProfileScreen({ navigation }: any) {
     const [warningModalVisible, setWarningModalVisible] = useState(false);
     const [errorModalVisible, setErrorModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
+
     const [modalHeader, setModalHeader] = useState('');
 
     const handlePickImage = async () => {
@@ -103,7 +104,7 @@ export default function ProfileScreen({ navigation }: any) {
                         <ActivityIndicator size="large" color="#00FF00" />
                     ) : (
                         <Image
-                            source={userInfo?.avatar_url ? { uri: userInfo.avatar_url } : userPlaceholder}
+                            source={userInfo?.avatar_signed_url ? { uri: userInfo.avatar_signed_url } : (userInfo?.avatar_url && userInfo.avatar_url.startsWith('http') ? { uri: userInfo.avatar_url } : userPlaceholder)}
                             style={styles.avatar}
                         />
                     )}

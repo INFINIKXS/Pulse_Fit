@@ -135,7 +135,7 @@ const HeaderPill = ({ onSearchChange }: { onSearchChange?: (text: string) => voi
                 {!isSearchOpen && (
                     <TouchableOpacity onPress={handlePickImage} activeOpacity={0.8} style={{ zIndex: 10 }}>
                         <Image
-                            source={userInfo?.avatar_signed_url ? { uri: userInfo.avatar_signed_url } : (userInfo?.avatar_url ? { uri: userInfo.avatar_url } /* Fallback to unsigned if signed missing? */ : defaultAvatar)}
+                            source={userInfo?.avatar_signed_url ? { uri: userInfo.avatar_signed_url } : (userInfo?.avatar_url && userInfo.avatar_url.startsWith('http') ? { uri: userInfo.avatar_url } : defaultAvatar)}
                             style={{ width: HEIGHT - s(8), height: HEIGHT - s(8), borderRadius: (HEIGHT - s(8)) / 2, marginLeft: s(2), backgroundColor: '#E0E0E0' }}
                             resizeMode="cover"
                         />
