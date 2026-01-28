@@ -82,9 +82,10 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({ onSelectDate, init
                 <View style={{
                     position: 'absolute',
                     top: vs(33), // Matches XML (33dp)
-                    width: s(30), // Matches XML (30dp)
+                    width: s(30),
                     height: s(30),
-                    borderRadius: s(30), // Increased to ensure perfect circle
+                    borderRadius: 999,
+                    overflow: 'hidden', // Ensure clipping on Android
                     backgroundColor: isSelected ? '#FFFFFF' : 'transparent', // White circle if selected
                     justifyContent: 'center',
                     alignItems: 'center',
