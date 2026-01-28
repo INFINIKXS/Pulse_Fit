@@ -26,27 +26,23 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     logoContainer: {
-        // The visual content spans roughly from left:32 (dumbbell) to ~left:250 (text end)
-        // Visual center is around 140px, so we offset by moving the container left
+        // Visual center is now natural with Flexbox
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 320,  // Wide enough for all content
-        height: 100, // Tall enough for content
-        position: 'relative',
-        marginLeft: -80, // Offset to center the visual content
+        // width: 320,  // Removed fixed width
+        // height: 100, // Removed fixed height
+        // position: 'relative',
+        // marginLeft: -80, // Removed offset
+        gap: -30, // Adjust gap to overlap image and text nicely
     },
     logo: {
-        // EXACT same as original PulseFit_Logo
-        width: 191.42,
-        height: 94.75,
-        position: 'absolute',
-        top: -3,
-        left: 32,
-        marginBottom: 1,
+        width: 50,
+        height: 50,
+        resizeMode: 'contain',
+        marginRight: 10,
     },
     pulsefitText: {
-        // EXACT same as original PulseFit_Logo
         fontFamily: 'Kadwa-Bold',
         fontWeight: '500',
         fontSize: 27.47,
@@ -58,9 +54,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 1,
         overflow: 'hidden',
-        position: 'absolute',
-        left: 122,
-        top: 26,
+        marginTop: 0,
     },
     fitText: {
         color: '#008000',

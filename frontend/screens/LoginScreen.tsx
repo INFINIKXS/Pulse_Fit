@@ -27,7 +27,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const { signIn } = React.useContext(AuthContext)!;
   const [loading, setLoading] = useState(false);
-  const { vs } = useScaling();
+  const { vs, s } = useScaling();
   const insets = useSafeAreaInsets();
 
   const handleLogin = async () => {
@@ -59,7 +59,15 @@ export default function LoginScreen({ navigation }: Props) {
     <AuthScreenContainer>
       <StatusBar style="light" translucent backgroundColor="transparent" />
       <View style={{ flex: 1, width: '100%', paddingHorizontal: 20, position: 'relative' }}>
-        <View style={{ position: 'absolute', top: Math.max(vs(79), insets.top) }}>
+        {/* XML Spec: Exact Coordinates & Dimensions */}
+        <View style={{
+          position: 'absolute',
+          left: s(101),
+          top: vs(98),
+          width: s(191.42),
+          height: s(94.75),
+          // alignItems: 'center' // Removed centering to respect 'left'
+        }}>
           <PulseFit_Logo />
         </View>
         {/* Title */}

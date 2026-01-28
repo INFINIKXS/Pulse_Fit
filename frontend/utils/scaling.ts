@@ -10,8 +10,8 @@
  */
 import { Dimensions, useWindowDimensions } from 'react-native';
 
-// Standard mobile guideline (matches Figma design dimensions)
-const GUIDELINE_BASE_WIDTH = 393;
+// Standard mobile guideline (matches Design XML dimensions)
+const GUIDELINE_BASE_WIDTH = 353;
 const GUIDELINE_BASE_HEIGHT = 852;
 
 // ============================================

@@ -2,13 +2,16 @@ import React, { useEffect, useRef, useContext, useState } from 'react';
 import { View, StyleSheet, Animated, Dimensions, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthContext } from '../context/AuthContext';
-import PulseFit_Logo_Centered from '../components/PulseFit_Logo_Centered';
+import { useScaling } from '../utils/scaling';
+import PulseFit_Logo from '../components/PulseFit_Logo'; // Replaced Centered with Standard for absolute positioning
+// import PulseFit_Logo_Centered from '../components/PulseFit_Logo_Centered'; // Unused
 import api from '../services/api';
 
 const { width, height } = Dimensions.get('window');
 
-export default function SplashScreen({ navigation }) {
+export default function SplashScreen({ navigation }: { navigation: any }) {
     const { isLoading, userToken, signOut, setUserInfo } = useContext(AuthContext)!;
+    const { s, vs } = useScaling();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
     const [animationDone, setAnimationDone] = useState(false);
@@ -81,8 +84,16 @@ export default function SplashScreen({ navigation }) {
     return (
         <View style={styles.container}>
             <StatusBar style="light" />
-            <Animated.View style={[styles.logoContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-                <PulseFit_Logo_Centered />
+            <Animated.View style={{
+                position: 'absolute',
+                top: vs(374),
+                left: s(90),
+                width: s(211.75),
+                height: s(104.84),
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }]
+            }}>
+                <PulseFit_Logo />
             </Animated.View>
         </View>
     );

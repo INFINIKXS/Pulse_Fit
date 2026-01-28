@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import AuthInputField from '../components/AuthInputField';
 import PrimaryButton from '../components/PrimaryButton';
@@ -33,8 +33,9 @@ export default function SignupScreen({ navigation }: Props) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const { signUp } = React.useContext(AuthContext)!;
   const [loading, setLoading] = useState(false);
-  const { vs } = useScaling();
+  const { vs, s, ms } = useScaling();
   const insets = useSafeAreaInsets();
+  const styles = useMemo(() => createStyles(s, vs, ms), [s, vs, ms]);
 
   const handleSignup = async () => {
     if (!email || !password || !confirmPassword) {
@@ -73,7 +74,15 @@ export default function SignupScreen({ navigation }: Props) {
         <View style={styles.overlay} />
         {/* We use strict max() rule to prevent header overlap on devices with notches */}
         <View style={[styles.content, { paddingTop: Math.max(vs(98), insets.top) }]}>
-          <PulseFit_Logo />
+          <View style={{
+            position: 'absolute',
+            left: s(101),
+            top: vs(98),
+            width: s(191.42),
+            height: s(94.75),
+          }}>
+            <PulseFit_Logo />
+          </View>
           <Text style={styles.title}>Sign Up</Text>
           <AuthInputField
             style={styles.input}
@@ -99,7 +108,7 @@ export default function SignupScreen({ navigation }: Props) {
             style={styles.inputConfirm}
           />
           {loading ? (
-            <ActivityIndicator size="large" color="#00FF00" style={{ position: 'absolute', top: 480, alignSelf: 'center' }} />
+            <ActivityIndicator size="large" color="#00FF00" style={{ position: 'absolute', top: vs(480), alignSelf: 'center' }} />
           ) : (
             <PrimaryButton
               title="Sign Up"
@@ -111,18 +120,18 @@ export default function SignupScreen({ navigation }: Props) {
           <Text style={styles.orText}>Or continue with</Text>
           <View style={{
             position: 'absolute',
-            top: 562,
-            left: 39,
-            width: 85,
+            top: vs(562),
+            left: s(39),
+            width: s(85),
             borderBottomWidth: 1,
             borderBottomColor: '#fff',
             alignSelf: 'center',
           }} />
           <View style={{
             position: 'absolute',
-            top: 562,
-            left: 270,
-            width: 85,
+            top: vs(562),
+            left: s(270),
+            width: s(85),
             borderBottomWidth: 1,
             borderBottomColor: '#fff',
             alignSelf: 'center',
@@ -133,10 +142,10 @@ export default function SignupScreen({ navigation }: Props) {
             onApplePress={() => { }}
           />
           {/* Footer Link */}
-          <Text style={[styles.footerText, { left: 54 }]}>
+          <Text style={[styles.footerText, { left: s(54) }]}>
             Already have an account?{' '}
             <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Login')} style={{ padding: 0, margin: 0 }}>
-              <Text style={[styles.footerLink, { padding: 0, margin: 7, height: 30, width: 60, left: -8 }]}>Log In</Text>
+              <Text style={[styles.footerLink, { padding: 0, margin: s(7), height: vs(30), width: s(60), left: s(-8) }]}>Log In</Text>
             </TouchableOpacity>
           </Text>
           {/* PulseFit_Logo now handles the logo and text */}
@@ -146,7 +155,7 @@ export default function SignupScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (s: any, vs: any, ms: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
@@ -190,47 +199,47 @@ const styles = StyleSheet.create({
 
   title: {
     color: '#fff',
-    fontSize: 25,
+    fontSize: ms(25),
     fontWeight: '500', // Make title bold
     fontFamily: 'FamiljenGrotesk-Bold', // Use bold variant
     alignSelf: 'flex-start',
     position: 'absolute',
-    top: 189,
-    left: 30,
-    width: 150,
-    height: 36,
-    lineHeight: 25,
+    top: vs(189),
+    left: s(30),
+    width: s(150),
+    height: vs(36),
+    lineHeight: ms(25),
     letterSpacing: 0,
   },
   input: {
     position: 'absolute',
-    top: 241,
-    left: 33,
+    top: vs(241),
+    left: s(33),
   },
   inputPassword: {
     position: 'absolute',
-    top: 308,
-    left: 33,
+    top: vs(308),
+    left: s(33),
   },
   inputConfirm: {
     position: 'absolute',
-    top: 377,
-    left: 33,
+    top: vs(377),
+    left: s(33),
   },
   signupButton: {
     position: 'absolute',
-    top: 464,
-    left: 33,
+    top: vs(464),
+    left: s(33),
   },
   orText: {
-    width: 200,
-    height: 20,
+    width: s(200),
+    height: vs(20),
     position: 'absolute',
-    top: 552,
-    left: 98,
+    top: vs(552),
+    left: s(98),
     fontWeight: '500',
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: ms(16),
+    lineHeight: ms(20),
     letterSpacing: 0,
     color: '#fff',
     textAlign: 'center',
@@ -238,21 +247,21 @@ const styles = StyleSheet.create({
   },
   socialRow: {
     position: 'absolute',
-    top: 600,
-    left: 20,
+    top: vs(600),
+    left: s(20),
   },
   loginText: {
     fontWeight: '400',
-    fontSize: 15,
-    lineHeight: 8,
+    fontSize: ms(15),
+    lineHeight: ms(8),
     letterSpacing: 0,
     color: '#fff',
     textAlign: 'center',
-    width: 307,
-    height: 20,
+    width: s(307),
+    height: vs(20),
     position: 'absolute',
-    top: 678,
-    left: 42,
+    top: vs(678),
+    left: s(42),
     includeFontPadding: false,
     textAlignVertical: 'center',
     flexDirection: 'row',
@@ -263,16 +272,16 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontWeight: '400',
-    fontSize: 15,
-    lineHeight: 15,
+    fontSize: ms(15),
+    lineHeight: ms(15),
     letterSpacing: 0,
     color: '#fff',
     textAlign: 'center',
-    width: 307,
-    height: 20,
+    width: s(307),
+    height: vs(20),
     position: 'absolute',
-    top: 678,
-    left: 46,
+    top: vs(678),
+    left: s(46),
     includeFontPadding: false,
     textAlignVertical: 'center',
     flexDirection: 'row',

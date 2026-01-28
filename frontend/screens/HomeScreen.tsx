@@ -73,56 +73,62 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header Container - Uses absolute positioning per designer specs */}
-        {/* We use Math.max() to ensure we respect the physical status bar (insets.top) if it's larger than the design spec */}
-        <View style={{ position: 'relative', height: vs(103), marginBottom: vs(1) }}>
-          {/* Logo (group_2) - Absolutely centered horizontally on screen */}
-          <View style={{
-            position: 'absolute',
-            top: Math.max(vs(48.07), insets.top), // strict safe area rule
-            left: 0,
-            right: 0,
-            alignItems: 'center',
-            zIndex: 1,
-          }}>
-            <View style={{ width: s(108.31), height: vs(53.61), alignItems: 'center', justifyContent: 'center' }}>
-              {/* 
-                Wrapper Strategy:
-                1. Create a view with the EXACT intrinsic size of the logo contents (191.42 x 94.75)
-                2. Scale this view down to fit the target container.
-                3. Inside, shift the logo content so its visual center aligns with the wrapper's center.
-              */}
-              <View style={{ width: 191.42, height: 94.75, alignItems: 'center', justifyContent: 'center', transform: [{ scale: 0.566 }] }}>
-                <PulseFit_Logo style={{ transform: [{ translateX: -45 }] }} />
-              </View>
-            </View>
-          </View>
+        {/* Header Container - Absolute Positioning per Developer Specs */}
+        <View style={{
+          height: vs(100), // Sufficient height for absolute elements
+          width: '100%',
+          marginBottom: vs(10),
+          // We don't add marginTop here, we handle it in absolute top coordinates
+        }}>
 
-          {/* Search (group_5) - Left aligned, floats on left side */}
+          {/* Search/Profile Pill (Left) */}
+          {/* Specs: Left: 20, Top: 58 */}
           <View style={{
             position: 'absolute',
-            top: Math.max(vs(58), insets.top + vs(10)), // Push search slightly below status bar if needed
-            left: s(20),
-            width: s(97),
-            height: vs(45),
-            justifyContent: 'center',
-            zIndex: 2,
+            left: s(5),
+            top: Math.max(vs(58), insets.top + vs(10)), // Ensure it's below status bar
+            zIndex: 10,
           }}>
             <HeaderPill onSearchChange={setSearchQuery} />
           </View>
+
+          {/* PulseFit Logo (Right) */}
+          {/* Specs: Left: 264, Top: 48.07, Width: 108.31, Height: 53.61 */}
+          <View style={{
+            position: 'absolute',
+            left: s(199), // Reduced from 264 to fix "too far right"
+            top: Math.max(vs(54.07), insets.top),
+            width: s(108.31),
+            height: vs(53.61),
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            <PulseFit_Logo scale={0.56} />
+          </View>
+
         </View>
 
         {/* Greeting - Only show if not searching? Or always? Let's keep it. */}
-        <Text style={[styles.greetingText, { fontSize: ms(18), lineHeight: ms(22), marginBottom: vs(15) }]}>
+        <Text style={[styles.greetingText, { fontSize: ms(18), left: s(5), lineHeight: ms(22), marginBottom: vs(15) }]}>
           Good Morning, <Text style={styles.boldText}>Sammy!</Text>
         </Text>
 
         {/* Calendar Strip - potentially hide during search */}
         {!isSearching && (
-          <View style={{ marginBottom: vs(20) }}>
+          <View style={{
+            position: 'absolute',
+            left: s(20),
+            top: vs(141),
+            width: s(372),
+            height: vs(69),
+            zIndex: 5,
+          }}>
             <CalendarStrip />
           </View>
         )}
+
+        {/* Spacer for Absolute Calendar Strip */}
+        {!isSearching && <View style={{ height: vs(80), width: '100%' }} />}
 
         {/* Today's Workout Section */}
         {showTodaySection && filteredToday && (

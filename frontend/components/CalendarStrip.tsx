@@ -54,39 +54,49 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({ onSelectDate, init
                 style={({ pressed }) => [
                     styles.card,
                     {
-                        width: s(60),
-                        height: vs(85),
-                        borderRadius: s(30),
-                        backgroundColor: isSelected ? '#00B300' : '#111',
-                        marginRight: s(12),
+                        width: s(43),
+                        height: vs(69),
+                        borderRadius: s(21.5),
+                        backgroundColor: isSelected ? '#00B300' : '#171717', // Green if selected, Dark if not
+                        marginRight: s(9),
                         opacity: pressed ? 0.9 : 1,
-                        justifyContent: 'center',
                         alignItems: 'center',
-                        gap: vs(8)
+                        justifyContent: 'flex-start',
                     }
                 ]}
             >
+                {/* Day Name */}
                 <Text style={{
-                    color: isSelected ? '#000' : '#FFF',
+                    color: isSelected ? '#000' : '#FFF', // Black text on Green background
                     fontFamily: 'FamiljenGrotesk-Regular',
                     fontSize: ms(13),
-                    fontWeight: isSelected ? '600' : '400'
+                    fontWeight: '400',
+                    position: 'absolute',
+                    top: vs(12),
+                    letterSpacing: 0.05,
                 }}>
                     {dayName}
                 </Text>
 
+                {/* Selection Ellipse Container */}
                 <View style={{
-                    width: s(36),
-                    height: s(36),
-                    borderRadius: s(18),
-                    backgroundColor: isSelected ? '#FFF' : 'transparent',
+                    position: 'absolute',
+                    top: vs(33), // Matches XML (33dp)
+                    width: s(30), // Matches XML (30dp)
+                    height: s(30),
+                    borderRadius: s(30), // Increased to ensure perfect circle
+                    backgroundColor: isSelected ? '#FFFFFF' : 'transparent', // White circle if selected
                     justifyContent: 'center',
-                    alignItems: 'center'
+                    alignItems: 'center',
                 }}>
+                    {/* Day Number */}
                     <Text style={{
-                        color: isSelected ? '#000' : '#FFF',
-                        fontFamily: 'FamiljenGrotesk-Bold', // Use Bold for the number
-                        fontSize: ms(18)
+                        color: isSelected ? '#000' : '#FFF', // Black on White, White on Dark
+                        fontFamily: 'FamiljenGrotesk-Regular',
+                        fontSize: ms(20),
+                        // Remove absolute top here, let it center in the ellipse
+                        includeFontPadding: false,
+                        textAlignVertical: 'center',
                     }}>
                         {dayNumber}
                     </Text>
