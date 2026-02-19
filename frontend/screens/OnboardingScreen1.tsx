@@ -4,7 +4,7 @@ import AuthInputField from '../components/AuthInputField';
 import { StatusBar } from 'expo-status-bar';
 import { useScaling } from '../utils/scaling';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import api from '../services/api';
+import api, { BASE_URL } from '../services/api';
 import * as ImagePicker from 'expo-image-picker';
 import { File, Directory } from 'expo-file-system';
 import { fetch } from 'expo/fetch';
@@ -238,7 +238,7 @@ export default function BasicInfoScreen({ navigation }: any) {
                       formData.append('height', height!);
                       formData.append('weight', weight!);
 
-                      const fetchRes = await fetch('http://10.250.111.122:4000/api/users/me', {
+                      const fetchRes = await fetch(`${BASE_URL}/users/me`, {
                         method: 'PUT',
                         headers: {
                           Authorization: `Bearer ${token}`,
